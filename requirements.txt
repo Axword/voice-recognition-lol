@@ -1,0 +1,6 @@
+pyaudio==0.2.11
+pynput==1.7.6
+requests==2.31.0
+urllib3==2.0.4
+pyperclip==1.8.2
+speech_recognition[audio]==3.10.0
