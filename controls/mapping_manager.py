@@ -1,17 +1,24 @@
 import difflib
+import re
+from typing import Optional, Tuple, List
 
 class MappingManager:
     def __init__(self, language="pl_PL"):
         self.language = language
         self.current_champion = None
         self._default_mappings = self._generate_default_mappings()
+        self._PL_TRANSLATION = str.maketrans(
+            {"ą": "a", "ć": "c", "ę": "e", "ł": "l", "ń": "n", "ó": "o", "ś": "s", "ź": "z", "ż": "z"}
+        )
         self.mappings = self._default_mappings.copy()
         self.keybinds = {
             "Flash": "f",
             "Summoner2": "d"
         }
     def normalize(self, text: str) -> str:
-        return text.lower().strip()
+        """Normalizuje tekst: małe litery, usuwa znaki specjalne i polskie znaki."""
+        text = re.sub(r'[^\w\s]', '', text)
+        return text.lower().strip().translate(self._PL_TRANSLATION)
 
     def _generate_default_mappings(self) -> None:
         """Generate default voice mappings independent of champion."""
@@ -104,21 +111,58 @@ class MappingManager:
         }
 
     def load_champion_mappings(self, champion_mappings: dict):
-            """Łączy mapowania domyślne z mapowaniami dla konkretnego championa."""
-            self.mappings = self._default_mappings.copy()
-            self.mappings.update(champion_mappings)
+        self.mappings = self._default_mappings.copy()
+        normalized_champ_mappings = {self.normalize(k): v for k, v in champion_mappings.items()}
+        self.mappings.update(normalized_champ_mappings)
 
     def reset_to_default(self):
-        """Przywraca tylko domyślne mapowania."""
         self.mappings = self._default_mappings.copy()
+        
+    @staticmethod
+    def _split_words(text: str) -> List[str]:
+        """Dzieli tekst na słowa i usuwa puste tokeny."""
+        return [w for w in text.split() if w]
 
-    def match_command(self, text: str):
-        if text in self.mappings:
-            return self.mappings[text]
+    def find_best_match(self, command: str) -> Optional[Tuple[str, str]]:
+        """Znajduje najlepsze dopasowanie dla rozpoznanej komendy."""
+        normalized_command = self.normalize(command)
+        
+        if normalized_command in self.mappings:
+            return normalized_command, self.mappings[normalized_command]
+
+        matches: List[Tuple[str, str, float]] = []
+        command_words = self._split_words(normalized_command)
+
         for phrase, key in self.mappings.items():
-            if difflib.SequenceMatcher(None, phrase, text).ratio() > 0.85:
-                return key
-        return None
+            if phrase in normalized_command:
+                matches.append((phrase, key, 100.0 + len(phrase)))
+                continue
 
+            phrase_words = self._split_words(phrase)
+            for p_word in phrase_words:
+                for c_word in command_words:
+                    if len(p_word) < 3 or len(c_word) < 3:
+                        continue
+                    
+                    sim = difflib.SequenceMatcher(None, p_word, c_word).ratio()
+                    threshold = 0.85 if len(p_word) > 3 else 0.9
+
+                    if sim >= threshold:
+                        score = sim * 10 + len(p_word)
+                        matches.append((phrase, key, score))
+        
+        if not matches:
+            return None
+
+        matches.sort(key=lambda x: x[2], reverse=True)
+        best_match = matches[0]
+        return best_match[0], best_match[1]
+
+    def match_command(self, text: str) -> Optional[str]:
+        """Główna metoda dopasowująca, używa find_best_match."""
+        match = self.find_best_match(text)
+        if match:
+            return match[1]
+        return None
     def update_champion(self, champion_name: str):
         self.current_champion = champion_name
