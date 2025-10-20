@@ -1,4 +1,4 @@
-# LoL Voice Controller v2.0
+# LoL Voice  Controller v0.2
 
 Voice control system for League of Legends with automatic champion detection.
 

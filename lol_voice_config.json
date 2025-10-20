@@ -3,5 +3,6 @@
   "flash_key": "f",
   "summoner2_key": "d",
   "accuracy": 0.7,
-  "speech_engine": "vosk"
+  "speech_engine": "vosk",
+  "recognition_model": "vosk"
 }

@@ -1,6 +1,10 @@
+speech_recognition==3.10.0
+pydub==0.25.1
 pyaudio==0.2.11
 pynput==1.7.6
+pygame==2.5.2
+numpy==1.24.3
 requests==2.31.0
 urllib3==2.0.4
 pyperclip==1.8.2
-speech_recognition[audio]==3.10.0
+googletrans==4.0.0rc1
