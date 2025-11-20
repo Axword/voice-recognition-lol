@@ -1,0 +1,42 @@
+reksai:
+nie wczytuje??
+
+brand:
+ulti się nie da powiedzieć po polsku
+
+
+Elise
+- często nie wyłapujee
+- obie wymowy działją zawsze? Chyba?
+
+hwei
+-
+-
+zmiana:
+przerobić pobieranie z championFull na pobieranie spelli z API
+z api pobierać info o summoner spellach
+
+
+
+strumieniowanie ciągłę jakby zamiast takich chwilowych
+
+
+dodatkowe poprawki dla algorytmów (zwiększyć próg błędu zawsze)
+
+dodać do ui wybór na którym jest flash
+
+
+
+Aurora = docelowy poziom
+
+- nie za duży input lag (a przynajmniej stały)
+
+- customizowane opcje tego jak chcemy wymawiać spelle
+(dodać opcje q/w/e/r jeden/dwa/trzy)
+- Jeden dwa trzy cztery dodać do slota przedmiotów
+- Przetestować voice reognition q/w/e/r
+
+
+na później:
+- sklep
+- wybierało runy i championa (?)

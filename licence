@@ -1,0 +1,36 @@
+
+## Jak to działa:
+
+### 1. **Automatyczne buildy:**
+- Każdy push na `main` tworzy nowy build
+- Pull requesty są automatycznie testowane
+- Nocne buildy jeśli były zmiany
+
+### 2. **Wersjonowanie:**
+- Automatyczne zwiększanie wersji (patch/minor/major)
+- Tagowanie w Git
+- Changelog generowany z commitów
+
+### 3. **Release:**
+- Automatyczne tworzenie Release na GitHub
+- Upload wszystkich artefaktów
+- Dostępne dla Windows i Linux
+
+### 4. **Użycie:**
+
+```bash
+# Pierwszy raz - setup repo
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/lol-voice-controller.git
+git push -u origin main
+
+# Potem - każdy push na main tworzy build
+git add .
+git commit -m "feat: added new feature"
+git push
+
+# Ręczne tworzenie release (major/minor/patch)
+# Idź do Actions -> Build and Release -> Run workflow
+# Wybierz typ release

@@ -10,11 +10,8 @@ import requests
 from typing import Dict, List, Tuple, Optional
 import difflib
 from datetime import datetime, timedelta
-try:
-    from googletrans import Translator
-    TRANSLATOR_AVAILABLE = True
-except ImportError:
-    TRANSLATOR_AVAILABLE = False
+
+TRANSLATOR_AVAILABLE = False
 
 class LoLDataManager:
     def __init__(self, language='pl_PL'):
@@ -169,7 +166,7 @@ class LoLDataManager:
     
     def create_voice_mappings(self, champion_name: str, keybinds: Dict = None) -> Dict[str, str]:
         if keybinds is None:
-            keybinds = {'Q': 'q', 'W': 'w', 'E': 'e', 'R': 'r', 'Flash': 'f', 'Summoner2': 'd'}
+            keybinds = {'Q': 'q', 'W': 'w', 'E': 'e', ' ': 'r', 'Flash': 'f', 'Summoner2': 'd'}
         
         abilities = self.get_champion_abilities(champion_name)
         if not abilities:
@@ -273,7 +270,7 @@ class LoLDataManager:
         similar_abilities = self.find_similar_abilities(champion_name, threshold=0.4)
         
         if not similar_abilities:
-            return 0.65
+            return 0.5
         
         max_similarity = max(pair[2] for pair in similar_abilities)
         
@@ -288,33 +285,7 @@ class LoLDataManager:
         if not self.champions_data:
             self.fetch_champion_data()
         return list(self.champions_data.keys())
-    
-    def search_champion(self, query: str) -> List[Tuple[str, float]]:
-        if not self.champions_data:
-            self.fetch_champion_data()
-        
-        matches = []
-        query_lower = query.lower()
-        
-        for champion_name in self.champions_data.keys():
-            if query_lower == champion_name.lower():
-                matches.append((champion_name, 1.0))
-                continue
-            
-            if champion_name.lower().startswith(query_lower):
-                matches.append((champion_name, 0.9))
-                continue
-            
-            if query_lower in champion_name.lower():
-                matches.append((champion_name, 0.8))
-                continue
-            
-            similarity = difflib.SequenceMatcher(None, query_lower, champion_name.lower()).ratio()
-            if similarity >= 0.6:
-                matches.append((champion_name, similarity))
-        
-        matches.sort(key=lambda x: x[1], reverse=True)
-        return matches[:10]
+
     
     def fetch_items_data(self, force_update=False) -> Dict:
         version = self.get_latest_version()
@@ -447,23 +418,3 @@ class LoLDataManager:
         except Exception as e:
             print(f"❌ Auto-update failed: {e}")
             return False
-
-if __name__ == "__main__":
-    manager = LoLDataManager('pl_PL')
-    
-    print("=== TESTING WITH EZREAL ===")
-    abilities = manager.get_champion_abilities('Ezreal')
-    print("Abilities:", abilities)
-    
-    mappings = manager.create_voice_mappings('Ezreal')
-    print(f"\nVoice mappings ({len(mappings)} total):")
-    for phrase, key in sorted(mappings.items(), key=lambda x: len(x[0]), reverse=True)[:10]:
-        print(f"  '{phrase}' -> {key}")
-    
-    similar = manager.find_similar_abilities('Ezreal')
-    print(f"\nSimilar abilities: {similar}")
-    
-    accuracy = manager.suggest_recognition_accuracy('Ezreal')
-    print(f"Suggested accuracy: {accuracy}")
-    
-    print(f"\nSearch test for 'ezr': {manager.search_champion('ezr')}")

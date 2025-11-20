@@ -1,0 +1,35 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should-build: ${{ steps.check.outputs.should-build }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Check for recent changes
+        id: check
+        run: |
+          # Check if there were commits in the last 24 hours
+          CHANGES=$(git log --since="24 hours ago" --oneline)
+          if [ -z "$CHANGES" ]; then
+            echo "should-build=false" >> $GITHUB_OUTPUT
+          else
+            echo "should-build=true" >> $GITHUB_OUTPUT
+          fi
+  
+  nightly-build:
+    needs: check-changes
+    if: needs.check-changes.outputs.should-build == 'true'
+    uses: ./.github/workflows/build-release.yml
+    with:
+      release_type: 'nightly'
+    secrets: inherit

@@ -1,0 +1,6 @@
+{
+  "language": "pl_PL",
+  "recognition_accuracy_threshold": 0.75,
+  "min_score_threshold": 15.0,
+  "recognition_mode": "letters"
+}
