@@ -21,9 +21,7 @@ APP_DIR = DIST_DIR / "app"
 
 # Files to include
 INCLUDE_FILES = [
-    ("models", "models"),
-    ("config", "config"),
-    ("data", "data"),
+    ("config.json", "config.json"),
     ("README.md", "README.md"),
 ]
 

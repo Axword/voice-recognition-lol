@@ -1,22 +1,22 @@
 # LoL Voice Controller
 
-[![Build and Release](https://github.com/Axword/lol-voice-controller/actions/workflows/build-release.yml/badge.svg)](https://github.com/Axword/lol-voice-controller/actions/workflows/build-release.yml)
-[![Latest Release](https://img.shields.io/github/v/release/Axword/lol-voice-controller)](https://github.com/Axword/lol-voice-controller/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Axword/lol-voice-controller/total)](https://github.com/Axword/lol-voice-controller/releases)
-[![License](https://img.shields.io/github/license/Axword/lol-voice-controller)](LICENSE)
+[![Build and Release](https://github.com/Axword/voice-recognition-lol/actions/workflows/build-release.yml/badge.svg)](https://github.com/Axword/voice-recognition-lol/actions/workflows/build-release.yml)
+[![Latest Release](https://img.shields.io/github/v/release/Axword/voice-recognition-lol)](https://github.com/Axword/voice-recognition-lol/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Axword/voice-recognition-lol/total)](https://github.com/Axword/voice-recognition-lol/releases)
+[![License](https://img.shields.io/github/license/Axword/voice-recognition-lol)](LICENSE)
 
 Voice control for League of Legends using Whisper AI.
 
 ## Download
 
 ### Latest Release
-Download the latest version from [Releases](https://github.com/Axword/lol-voice-controller/releases/latest)
+Download the latest version from [Releases](https://github.com/Axword/voice-recognition-lol/releases/latest)
 
 - **Windows**: `LoLVoiceController_Setup.exe` (Installer) or `_portable.zip`
 - **Linux**: `LoLVoiceController_linux.tar.gz`
 
 ### Development Builds
-Nightly builds are available in [Actions](https://github.com/Axword/lol-voice-controller/actions) artifacts.
+Nightly builds are available in [Actions](https://github.com/Axword/voice-recognition-lol/actions) artifacts.
 
 ## Features
 - 🎤 Voice recognition with Whisper AI
