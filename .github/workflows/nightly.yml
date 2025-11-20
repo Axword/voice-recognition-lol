@@ -13,7 +13,7 @@ jobs:
       should-build: ${{ steps.check.outputs.should-build }}
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
       - name: Check for recent changes
         id: check
