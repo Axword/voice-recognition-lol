@@ -93,7 +93,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Upload version info
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: version-info
           path: |
@@ -198,7 +198,7 @@ jobs:
           print(f"Created portable ZIP: {zip_path}")
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: windows-build
           path: |
@@ -270,7 +270,7 @@ jobs:
           cd ..
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: linux-build
           path: dist/*.tar.gz
