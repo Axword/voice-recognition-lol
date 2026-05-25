@@ -10,6 +10,18 @@ import os
 from typing import Dict, Optional
 import time
 import logging
+try:
+    from resource_helper import resource_path, get_config_path, ensure_default_config, get_logs_dir
+except ImportError:
+    # Fallback if resource_helper not found
+    def resource_path(path):
+        return path
+    def get_config_path():
+        return 'config/config.json'
+    def ensure_default_config():
+        return get_config_path()
+    def get_logs_dir():
+        return 'logs'
 from controller.lol_whisp_controller import LoLVoiceController
 from gui.translations import TRANSLATIONS
 
@@ -43,7 +55,7 @@ class LoLVoiceGUI:
         self.root = tk.Tk()
         self.controller: Optional[LoLVoiceController] = None
         self.is_running = False
-        self.config_file = "config/config.json"
+        self.config_file = get_config_path()
         self.config = self.load_config()
         
         self.colors = {
@@ -1004,12 +1016,16 @@ class LoLVoiceGUI:
 
     def load_config(self) -> Dict:
         """Load configuration."""
-        if os.path.exists(self.config_file):
+        ensure_default_config()
+        config_path = get_config_path()
+        
+        if os.path.exists(config_path):
             try:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
+                with open(config_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
-            except:
-                pass
+            except Exception as e:
+                print(f"Error loading config: {e}")
+        
         return {
             'recognition_mode': 'letters',
             'spell_sensitivity': 'medium',
