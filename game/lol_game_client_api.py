@@ -1,18 +1,25 @@
 # game/lol_game_client_api.py
 
-import time
+from __future__ import annotations
+
 import requests
-from typing import Dict, Optional, List
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class LoLGameClientAPI:
-    def __init__(self):
-        self.base_url = "https://127.0.0.1:2999"
+    #: Riot wystawia Live Client Data API lokalnie, na stalym porcie.
+    DEFAULT_BASE_URL = "https://127.0.0.1:2999"
+
+    def __init__(self, base_url: str | None = None):
+        import os
+
+        # W kontenerze gra siedzi na hoscie, wiec compose podaje
+        # https://host.docker.internal:2999.
+        self.base_url = (base_url or os.environ.get("LOLVOICE_GAME_API", self.DEFAULT_BASE_URL)).rstrip("/")
         self.session = requests.Session()
         self.session.verify = False
-        
+
     def is_game_active(self) -> bool:
         """Sprawdza, czy gra jest aktualnie w toku."""
         try:
@@ -20,8 +27,8 @@ class LoLGameClientAPI:
             return response.status_code == 200
         except requests.RequestException:
             return False
-    
-    def get_active_player_name(self) -> Optional[str]:
+
+    def get_active_player_name(self) -> str | None:
         """Pobiera nick (summonerName) aktywnego gracza."""
         try:
             response = self.session.get(f"{self.base_url}/liveclientdata/activeplayer", timeout=1)
@@ -31,7 +38,7 @@ class LoLGameClientAPI:
             pass
         return None
 
-    def get_all_players(self) -> Optional[List[Dict]]:
+    def get_all_players(self) -> list[dict] | None:
         """Pobiera listę wszystkich graczy w meczu."""
         try:
             response = self.session.get(f"{self.base_url}/liveclientdata/playerlist", timeout=1)
@@ -41,7 +48,7 @@ class LoLGameClientAPI:
             pass
         return None
 
-    def get_current_champion(self) -> Optional[str]:
+    def get_current_champion(self) -> str | None:
         """
         Pobiera nazwę bohatera (championName) aktywnego gracza.
         Realizuje logikę:
@@ -60,10 +67,10 @@ class LoLGameClientAPI:
         for player in all_players:
             if player.get('summonerName') == active_player_name:
                 return player.get('championName')
-        
+
         return None
 
-    def get_active_player_abilities(self) -> Optional[Dict]:
+    def get_active_player_abilities(self) -> dict | None:
         """Pobiera aktualne umiejętności aktywnego gracza (ważne dla bohaterów ze zmiennymi skillami)."""
         try:
             response = self.session.get(f"{self.base_url}/liveclientdata/activeplayerabilities", timeout=1)

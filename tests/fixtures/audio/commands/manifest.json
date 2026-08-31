@@ -1,0 +1,758 @@
+[
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-15c7f1c0.mp3",
+  "phrase": "ار",
+  "expected": "r"
+ },
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-28d58984.mp3",
+  "phrase": "كيو",
+  "expected": "q"
+ },
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-81648e27.mp3",
+  "phrase": "فلاش",
+  "expected": "d"
+ },
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-981b3413.mp3",
+  "phrase": "اي",
+  "expected": "e"
+ },
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-ca9c7ff5.mp3",
+  "phrase": "انتقال",
+  "expected": "f"
+ },
+ {
+  "locale": "ar_AE",
+  "file": "ar_AE/phrase-fd8e80fc.mp3",
+  "phrase": "دبليو",
+  "expected": "w"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/blesk-ed3bbaeb.mp3",
+  "phrase": "blesk",
+  "expected": "d"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/dvojite-ve-56999e0e.mp3",
+  "phrase": "dvojite ve",
+  "expected": "w"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/kve-9f7f802a.mp3",
+  "phrase": "kve",
+  "expected": "q"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/ulta-f7c9f26c.mp3",
+  "phrase": "ulta",
+  "expected": "r"
+ },
+ {
+  "locale": "cs_CZ",
+  "file": "cs_CZ/vyerpn-bfd0b384.mp3",
+  "phrase": "vyčerpání",
+  "expected": "f"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/blitz-6d199aca.mp3",
+  "phrase": "blitz",
+  "expected": "d"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/cool-85d8d76b.mp3",
+  "phrase": "cool",
+  "expected": "q"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/doppel-u-fe22051b.mp3",
+  "phrase": "doppel u",
+  "expected": "w"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/teleportation-8401d77e.mp3",
+  "phrase": "teleportation",
+  "expected": "f"
+ },
+ {
+  "locale": "de_DE",
+  "file": "de_DE/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/phrase-027d360b.mp3",
+  "phrase": "νταμπλγιου",
+  "expected": "w"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/phrase-7772e457.mp3",
+  "phrase": "ρο",
+  "expected": "r"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/phrase-86dbef47.mp3",
+  "phrase": "φλας",
+  "expected": "d"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/phrase-965e7abf.mp3",
+  "phrase": "τηλεμεταφορά",
+  "expected": "f"
+ },
+ {
+  "locale": "el_GR",
+  "file": "el_GR/phrase-defe2a0c.mp3",
+  "phrase": "κιου",
+  "expected": "q"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/double-u-49235cdf.mp3",
+  "phrase": "double u",
+  "expected": "w"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/ee-1f444844.mp3",
+  "phrase": "ee",
+  "expected": "e"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/flash-6117e45a.mp3",
+  "phrase": "flash",
+  "expected": "d"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/queue-1038345e.mp3",
+  "phrase": "queue",
+  "expected": "q"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/teleport-7eef5b12.mp3",
+  "phrase": "teleport",
+  "expected": "f"
+ },
+ {
+  "locale": "en_US",
+  "file": "en_US/ultimate-74537d34.mp3",
+  "phrase": "ultimate",
+  "expected": "r"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/cu-93c30b1a.mp3",
+  "phrase": "cu",
+  "expected": "q"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/destello-54c18349.mp3",
+  "phrase": "destello",
+  "expected": "d"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/doble-u-10eecd38.mp3",
+  "phrase": "doble u",
+  "expected": "w"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/erre-55544adc.mp3",
+  "phrase": "erre",
+  "expected": "r"
+ },
+ {
+  "locale": "es_ES",
+  "file": "es_ES/teletransporte-c7b9707b.mp3",
+  "phrase": "teletransporte",
+  "expected": "f"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/cu-93c30b1a.mp3",
+  "phrase": "cu",
+  "expected": "q"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/double-ve-5035d57d.mp3",
+  "phrase": "double ve",
+  "expected": "w"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/erre-55544adc.mp3",
+  "phrase": "erre",
+  "expected": "r"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/eu-608e0133.mp3",
+  "phrase": "eu",
+  "expected": "e"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/saut-clair-1304d74e.mp3",
+  "phrase": "saut éclair",
+  "expected": "d"
+ },
+ {
+  "locale": "fr_FR",
+  "file": "fr_FR/tlportation-5ba4dea4.mp3",
+  "phrase": "téléportation",
+  "expected": "f"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/dupla-v-33aaca16.mp3",
+  "phrase": "dupla vé",
+  "expected": "w"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/felgyjts-14c78361.mp3",
+  "phrase": "felgyújtás",
+  "expected": "f"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/k-25e2e0df.mp3",
+  "phrase": "kú",
+  "expected": "q"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "hu_HU",
+  "file": "hu_HU/villans-2f64ef02.mp3",
+  "phrase": "villanás",
+  "expected": "d"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/flash-6117e45a.mp3",
+  "phrase": "flash",
+  "expected": "d"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/ki-81d21110.mp3",
+  "phrase": "ki",
+  "expected": "q"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/penyembuhan-ae0725c7.mp3",
+  "phrase": "penyembuhan",
+  "expected": "f"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "id_ID",
+  "file": "id_ID/we-676e6f35.mp3",
+  "phrase": "we",
+  "expected": "w"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/cu-93c30b1a.mp3",
+  "phrase": "cu",
+  "expected": "q"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/doppia-vu-f1d87d6d.mp3",
+  "phrase": "doppia vu",
+  "expected": "w"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/erre-55544adc.mp3",
+  "phrase": "erre",
+  "expected": "r"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/lampo-6a584c32.mp3",
+  "phrase": "lampo",
+  "expected": "d"
+ },
+ {
+  "locale": "it_IT",
+  "file": "it_IT/purificazione-f0814bc4.mp3",
+  "phrase": "purificazione",
+  "expected": "f"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-41bac410.mp3",
+  "phrase": "イー",
+  "expected": "e"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-a518059b.mp3",
+  "phrase": "ダブリュー",
+  "expected": "w"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-d4e0081c.mp3",
+  "phrase": "フラッシュ",
+  "expected": "d"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-da3f3441.mp3",
+  "phrase": "イグゾースト",
+  "expected": "f"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-f08497c7.mp3",
+  "phrase": "アール",
+  "expected": "r"
+ },
+ {
+  "locale": "ja_JP",
+  "file": "ja_JP/phrase-ff12ae0e.mp3",
+  "phrase": "キュー",
+  "expected": "q"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/phrase-7c478dc9.mp3",
+  "phrase": "플래시",
+  "expected": "d"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/phrase-ba4d9480.mp3",
+  "phrase": "더블유",
+  "expected": "w"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/phrase-f0a3b5eb.mp3",
+  "phrase": "궁극기",
+  "expected": "r"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/phrase-fccb641c.mp3",
+  "phrase": "순간이동",
+  "expected": "f"
+ },
+ {
+  "locale": "ko_KR",
+  "file": "ko_KR/q-22ea1c64.mp3",
+  "phrase": "q",
+  "expected": "q"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/bo-jest-1424308c.mp3",
+  "phrase": "bo jest",
+  "expected": "d"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/kju-e000caf8.mp3",
+  "phrase": "kju",
+  "expected": "q"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/oczyszczenie-4c179e3a.mp3",
+  "phrase": "oczyszczenie",
+  "expected": "f"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/tak-fe7f4aa4.mp3",
+  "phrase": "tak",
+  "expected": "e"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "pl_PL",
+  "file": "pl_PL/wu-364b4594.mp3",
+  "phrase": "wu",
+  "expected": "w"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/dablio-b1c7726c.mp3",
+  "phrase": "dablio",
+  "expected": "w"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/erre-55544adc.mp3",
+  "phrase": "erre",
+  "expected": "r"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/flash-6117e45a.mp3",
+  "phrase": "flash",
+  "expected": "d"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/purificar-f31eb791.mp3",
+  "phrase": "purificar",
+  "expected": "f"
+ },
+ {
+  "locale": "pt_BR",
+  "file": "pt_BR/que-57b5ca45.mp3",
+  "phrase": "que",
+  "expected": "q"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/chiu-c8a08ea3.mp3",
+  "phrase": "chiu",
+  "expected": "q"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/dublu-ve-ae490d12.mp3",
+  "phrase": "dublu ve",
+  "expected": "w"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/flash-6117e45a.mp3",
+  "phrase": "flash",
+  "expected": "d"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/teleportare-d8a46bd8.mp3",
+  "phrase": "teleportare",
+  "expected": "f"
+ },
+ {
+  "locale": "ro_RO",
+  "file": "ro_RO/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/--3a56964b.mp3",
+  "phrase": "дабл ю",
+  "expected": "w"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/phrase-20ec21ac.mp3",
+  "phrase": "скачок",
+  "expected": "d"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/phrase-59828e1b.mp3",
+  "phrase": "кью",
+  "expected": "q"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/phrase-a093677a.mp3",
+  "phrase": "ульта",
+  "expected": "r"
+ },
+ {
+  "locale": "ru_RU",
+  "file": "ru_RU/phrase-f75e3882.mp3",
+  "phrase": "воспламенение",
+  "expected": "f"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-0d00fc88.mp3",
+  "phrase": "เทเลพอร์ต",
+  "expected": "f"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-445fd5ec.mp3",
+  "phrase": "อาร์",
+  "expected": "r"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-734458e1.mp3",
+  "phrase": "แฟลช",
+  "expected": "d"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-83ed097a.mp3",
+  "phrase": "ดับเบิลยู",
+  "expected": "w"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-955fb9ca.mp3",
+  "phrase": "คิว",
+  "expected": "q"
+ },
+ {
+  "locale": "th_TH",
+  "file": "th_TH/phrase-fb729bc7.mp3",
+  "phrase": "อี",
+  "expected": "e"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/fla-a93ecd99.mp3",
+  "phrase": "flaş",
+  "expected": "d"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/ift-ve-145dfb3c.mp3",
+  "phrase": "çift ve",
+  "expected": "w"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/iyiletirme-4ce4aef7.mp3",
+  "phrase": "iyileştirme",
+  "expected": "f"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/k-59faf2d6.mp3",
+  "phrase": "kü",
+  "expected": "q"
+ },
+ {
+  "locale": "tr_TR",
+  "file": "tr_TR/ulti-27adf0a5.mp3",
+  "phrase": "ulti",
+  "expected": "r"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/chiu-cui-b750a08d.mp3",
+  "phrase": "chiêu cuối",
+  "expected": "r"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/dch-chuyn-dc3fe093.mp3",
+  "phrase": "dịch chuyển",
+  "expected": "f"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/quy-38814a9e.mp3",
+  "phrase": "quy",
+  "expected": "q"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/tc-bin-7893141e.mp3",
+  "phrase": "tốc biến",
+  "expected": "d"
+ },
+ {
+  "locale": "vi_VN",
+  "file": "vi_VN/v-kp-245c4860.mp3",
+  "phrase": "vê kép",
+  "expected": "w"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/phrase-31f6a488.mp3",
+  "phrase": "闪现",
+  "expected": "d"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/phrase-b121e82d.mp3",
+  "phrase": "大招",
+  "expected": "r"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/phrase-f2eb0d88.mp3",
+  "phrase": "幽灵疾步",
+  "expected": "f"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/q-22ea1c64.mp3",
+  "phrase": "q",
+  "expected": "q"
+ },
+ {
+  "locale": "zh_CN",
+  "file": "zh_CN/w-aff024fe.mp3",
+  "phrase": "w",
+  "expected": "w"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/e-58e6b3a4.mp3",
+  "phrase": "e",
+  "expected": "e"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/phrase-31f6a488.mp3",
+  "phrase": "闪现",
+  "expected": "d"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/phrase-b121e82d.mp3",
+  "phrase": "大招",
+  "expected": "r"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/phrase-f2eb0d88.mp3",
+  "phrase": "幽灵疾步",
+  "expected": "f"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/q-22ea1c64.mp3",
+  "phrase": "q",
+  "expected": "q"
+ },
+ {
+  "locale": "zh_TW",
+  "file": "zh_TW/w-aff024fe.mp3",
+  "phrase": "w",
+  "expected": "w"
+ }
+]

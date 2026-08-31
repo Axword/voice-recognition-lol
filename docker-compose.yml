@@ -1,0 +1,86 @@
+# Uruchomienie panelu, frontu i testow w kontenerach.
+#
+#   docker compose up panel              panel pod http://127.0.0.1:21337
+#   docker compose --profile dev up      panel + Vite z hot reloadem na 5173
+#   docker compose --profile test run --rm tests
+#   docker compose --profile test run --rm lint
+#
+# Czego kontener nie zrobi: nie nagra mikrofonu, nie wcisnie klawisza w grze
+# i nie pokaze ikony w zasobniku. Do grania sluzy aplikacja na Windowsie.
+# Wykrywanie bohatera dziala, o ile League of Legends chodzi na hoscie,
+# bo Live Client API jest wystawione przez host.docker.internal.
+
+name: lolvoice
+
+services:
+  panel:
+    build:
+      context: .
+      target: runtime
+    image: lolvoice/panel:dev
+    ports:
+      - "127.0.0.1:21337:21337"
+    environment:
+      LOLVOICE_HOME: /data
+      LOLVOICE_PORT: "21337"
+      # Staly token, zeby link do panelu byl przewidywalny miedzy restartami.
+      LOLVOICE_TOKEN: ${LOLVOICE_TOKEN:-dev-token}
+      # Przegladarka puka z bramy Dockera, wiec sam loopback tu nie wystarcza.
+      # 172.16.0.0/12 to domyslne sieci Dockera, 192.168.65.1 to brama Docker Desktop.
+      LOLVOICE_TRUSTED_HOSTS: ${LOLVOICE_TRUSTED_HOSTS:-172.16.0.0/12,192.168.65.0/24}
+      LOLVOICE_REPO: Axword/voice-recognition-lol
+      # Gra chodzi na hoscie, nie w kontenerze.
+      LOLVOICE_GAME_API: https://host.docker.internal:2999
+    volumes:
+      - lolvoice-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # Vite z hot reloadem. Zapytania /api i /ws leca do serwisu panel.
+  webui:
+    profiles: ["dev"]
+    image: node:20-alpine
+    working_dir: /app/webui
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "127.0.0.1:5173:5173"
+    environment:
+      LOLVOICE_API: http://panel:21337
+    volumes:
+      - ./webui:/app/webui
+      - webui-modules:/app/webui/node_modules
+    depends_on:
+      - panel
+
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      target: dev
+    image: lolvoice/dev:latest
+    environment:
+      LOLVOICE_HOME: /tmp/lolvoice-test
+      LOLVOICE_DDRAGON_FIXTURES: /app/tests/fixtures/ddragon
+    volumes:
+      - ./tests:/app/tests
+      - ./app:/app/app
+      - ./server:/app/server
+      - ./controller:/app/controller
+      - ./controls:/app/controls
+      - ./game:/app/game
+    command: ["python", "-m", "pytest", "-q", "-m", "not slow and not audio"]
+
+  lint:
+    profiles: ["test"]
+    build:
+      context: .
+      target: dev
+    image: lolvoice/dev:latest
+    volumes:
+      - .:/app:ro
+    command: sh -c "python -m ruff check . && python tools/check_copy.py"
+
+volumes:
+  lolvoice-data:
+  webui-modules:

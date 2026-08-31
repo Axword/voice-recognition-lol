@@ -1,0 +1,76 @@
+/* Kolory i wymiary. Jedyne miejsce, w którym definiujemy wartości. */
+
+:root,
+:root[data-theme='dark'] {
+  --bg: #111214;
+  --surface: #17181b;
+  --border: #2a2c30;
+  --text: #e8e6e3;
+  --text-muted: #9a9894;
+  --accent: #3ecf8e;
+  --danger: #e5644e;
+  --radius: 8px;
+
+  /* Warianty wyprowadzone z tokenów bazowych, bez nowych barw. */
+  --surface-raised: #1c1e22;
+  --border-strong: #3a3d43;
+  --accent-soft: rgba(62, 207, 142, 0.12);
+  --accent-line: rgba(62, 207, 142, 0.4);
+  --danger-soft: rgba(229, 100, 78, 0.12);
+  --on-accent: #08130d;
+  --track: #232529;
+  --scrim: rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme='light'] {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --border: #e6e3de;
+  --text: #1f1e1d;
+  --text-muted: #6b6862;
+  --accent: #3ecf8e;
+  --danger: #e5644e;
+  --radius: 8px;
+
+  --surface-raised: #f4f2ef;
+  --border-strong: #d5d1ca;
+  --accent-soft: rgba(62, 207, 142, 0.14);
+  --accent-line: rgba(62, 207, 142, 0.55);
+  --danger-soft: rgba(229, 100, 78, 0.12);
+  --on-accent: #08130d;
+  --track: #eeebe6;
+  --scrim: rgba(31, 30, 29, 0.2);
+}
+
+:root {
+  --font-display: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --step-0: 0.875rem;
+  --step-s: 0.8125rem;
+  --step-xs: 0.75rem;
+  --step-1: 1rem;
+  --step-2: 1.25rem;
+  --step-3: 1.75rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --sidebar-w: 232px;
+  --header-h: 56px;
+  --content-max: 780px;
+
+  --t: 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t: 0ms linear;
+  }
+}

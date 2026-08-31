@@ -1,348 +1,194 @@
 #!/usr/bin/env python3
-"""
-LoL Voice Assistant - Build Script
-Creates standalone EXE with all dependencies
+"""Build script for LoL Voice Controller.
+
+Three stages, each of which can be run on its own:
+
+    python build.py --app-only        PyInstaller onedir build into dist/LoLVoice
+    python build.py --installer-only  Inno Setup installer into dist/installer
+    python build.py --portable-only   portable ZIP into dist
+    python build.py                   all three
+
+The web panel is expected in webui/dist. Build it first with `npm ci` and
+`npm run build` in webui/, or pass --with-webui to have this script do it.
 """
 
+from __future__ import annotations
+
+import argparse
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
+import zipfile
 from pathlib import Path
 
-# ============ CONFIGURATION ============
-APP_NAME = "LoLVoiceAssistant"
-MAIN_SCRIPT = "main.py"
-ICON_PATH = "assets/icon.ico"  # Change if you have different icon
-VERSION = "1.0.0"
-COMPANY = "LoL Voice Assistant"
-# =======================================
+import build_config as cfg
+
+ISCC_CANDIDATES = [
+    Path(r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"),
+    Path(r"C:\Program Files\Inno Setup 6\ISCC.exe"),
+]
 
 
-def check_requirements():
-    """Check if all required tools are installed."""
-    print("🔍 Checking requirements...")
-    
-    # Check PyInstaller
+def log(message: str) -> None:
+    print(f"[build] {message}", flush=True)
+
+
+def fail(message: str) -> None:
+    print(f"[build] error: {message}", file=sys.stderr, flush=True)
+    raise SystemExit(1)
+
+
+def check_environment(need_installer: bool) -> None:
+    if not (cfg.ROOT_DIR / cfg.MAIN_SCRIPT).exists():
+        fail(f"entry point {cfg.MAIN_SCRIPT} not found")
     try:
-        import PyInstaller
-        print(f"  ✓ PyInstaller {PyInstaller.__version__}")
+        import PyInstaller  # noqa: F401
     except ImportError:
-        print("  ✗ PyInstaller not found!")
-        print("    Run: pip install pyinstaller")
-        return False
-    
-    # Check if main script exists
-    if not os.path.exists(MAIN_SCRIPT):
-        print(f"  ✗ Main script '{MAIN_SCRIPT}' not found!")
-        return False
-    print(f"  ✓ Main script: {MAIN_SCRIPT}")
-    
-    return True
+        fail("PyInstaller is missing, run: pip install -r requirements-dev.txt")
+    if need_installer and not find_iscc():
+        fail("Inno Setup compiler (ISCC.exe) not found, install Inno Setup 6")
 
 
-def clean_build():
-    """Remove previous build artifacts."""
-    print("\n🧹 Cleaning previous builds...")
-    
-    dirs_to_remove = ['build', 'dist', '__pycache__']
-    for dir_name in dirs_to_remove:
-        if os.path.exists(dir_name):
-            shutil.rmtree(dir_name)
-            print(f"  ✓ Removed {dir_name}/")
-    
-    # Remove .spec files
-    for f in Path('.').glob('*.spec'):
-        f.unlink()
-        print(f"  ✓ Removed {f}")
+def find_iscc() -> Path | None:
+    found = shutil.which("iscc") or shutil.which("ISCC")
+    if found:
+        return Path(found)
+    for candidate in ISCC_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    return None
 
 
-def create_version_file():
-    """Create Windows version info file."""
-    print("\n📝 Creating version info...")
-    
-    v = VERSION.split('.')
-    while len(v) < 4:
-        v.append('0')
-    
-    version_info = f'''# UTF-8
-VSVersionInfo(
-  ffi=FixedFileInfo(
-    filevers=({v[0]}, {v[1]}, {v[2]}, {v[3]}),
-    prodvers=({v[0]}, {v[1]}, {v[2]}, {v[3]}),
-    mask=0x3f,
-    flags=0x0,
-    OS=0x40004,
-    fileType=0x1,
-    subtype=0x0,
-    date=(0, 0)
-  ),
-  kids=[
-    StringFileInfo(
-      [
-      StringTable(
-        u'041504B0',
-        [StringStruct(u'CompanyName', u'{COMPANY}'),
-        StringStruct(u'FileDescription', u'League of Legends Voice Assistant'),
-        StringStruct(u'FileVersion', u'{VERSION}'),
-        StringStruct(u'InternalName', u'{APP_NAME}'),
-        StringStruct(u'LegalCopyright', u'Copyright (c) 2024 {COMPANY}'),
-        StringStruct(u'OriginalFilename', u'{APP_NAME}.exe'),
-        StringStruct(u'ProductName', u'LoL Voice Assistant'),
-        StringStruct(u'ProductVersion', u'{VERSION}')])
-      ]),
-    VarFileInfo([VarStruct(u'Translation', [0x0415, 1200])])
-  ]
-)
-'''
-    
-    with open('version_info.txt', 'w', encoding='utf-8') as f:
-        f.write(version_info)
-    print("  ✓ Created version_info.txt")
+def run(command: list[str], cwd: Path | None = None) -> None:
+    log(" ".join(str(part) for part in command))
+    result = subprocess.run(command, cwd=str(cwd) if cwd else None, check=False)
+    if result.returncode != 0:
+        fail(f"command failed with exit code {result.returncode}")
 
 
-def create_spec_file():
-    """Create PyInstaller spec file."""
-    print("\n📋 Creating spec file...")
-    
-    # Check for icon
-    icon_line = f"icon='{ICON_PATH}'," if os.path.exists(ICON_PATH) else "icon=None,"
-    
-    spec_content = f'''# -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec file for LoL Voice Assistant
-
-import os
-import sys
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
-
-block_cipher = None
-
-# Collect all data files
-datas = [
-    ('assets', 'assets'),
-    ('config', 'config'),
-    ('gui/translations.py', 'gui'),
-    ('resource_helper.py', '.'),
-]
-
-# Add version files if they exist
-if os.path.exists('version.json'):
-    datas.append(('version.json', '.'))
-if os.path.exists('version.txt'):
-    datas.append(('version.txt', '.'))
-
-# Hidden imports - modules that PyInstaller might miss
-hiddenimports = [
-    # Standard library
-    'json',
-    'threading',
-    'queue',
-    'logging',
-    'time',
-    'datetime',
-    'os',
-    'sys',
-    'typing',
-    'argparse',
-    
-    # Tkinter
-    'tkinter',
-    'tkinter.ttk',
-    'tkinter.messagebox',
-    'tkinter.filedialog',
-    
-    # Third party
-    'numpy',
-    'sounddevice',
-    'webrtcvad',
-    'colorama',
-    'requests',
-    'psutil',
-    'PIL',
-    'PIL._tkinter_finder',
-    'PIL.Image',
-    'PIL.ImageTk',
-    
-    # Whisper backends
-    'pywhispercpp',
-    'pywhispercpp.model',
-    
-    # Windows specific
-    'win32api',
-    'win32con',
-    'win32gui',
-    'win32process',
-    'pywintypes',
-    'win32event',
-    
-    # Your modules - IMPORTANT!
-    'controller',
-    'controller.lol_whisp_controller',
-    'controls',
-    'controls.key_mapping',
-    'controls.mapping_manager',
-    'game',
-    'game.ability_manager',
-    'game.lol_data_manager', 
-    'game.lol_game_client_api',
-    'gui',
-    'gui.lol_voice_gui',
-    'gui.translations',
-    'utils',
-    'utils.logger',
-    'resource_helper',
-]
-
-# Collect submodules for complex packages
-hiddenimports += collect_submodules('sounddevice')
-hiddenimports += collect_submodules('numpy')
-
-a = Analysis(
-    ['{MAIN_SCRIPT}'],
-    pathex=[os.path.abspath('.')],
-    binaries=[],
-    datas=datas,
-    hiddenimports=hiddenimports,
-    hookspath=[],
-    hooksconfig={{}},
-    runtime_hooks=[],
-    excludes=[
-        'matplotlib',
-        'scipy',
-        'pandas',
-        'notebook',
-        'jupyter',
-        'IPython',
-        'pytest',
-        'setuptools',
-        'pip',
-        'wheel',
-        'black',
-        'flake8',
-        'mypy',
-    ],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
-
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
-    name='{APP_NAME}',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,  # No console window for GUI app
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    {icon_line}
-    version='version_info.txt' if os.path.exists('version_info.txt') else None,
-    uac_admin=False,  # Don't require admin rights
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='{APP_NAME}',
-)
-'''
-    
-    with open(f'{APP_NAME}.spec', 'w', encoding='utf-8') as f:
-        f.write(spec_content)
-    print(f"  ✓ Created {APP_NAME}.spec")
+def build_webui() -> None:
+    webui = cfg.ROOT_DIR / "webui"
+    if not (webui / "package.json").exists():
+        fail("webui/package.json not found")
+    npm = shutil.which("npm") or shutil.which("npm.cmd")
+    if not npm:
+        fail("npm not found on PATH")
+    log("building the web panel")
+    run([npm, "ci"], cwd=webui)
+    run([npm, "run", "build"], cwd=webui)
 
 
-def run_pyinstaller():
-    """Run PyInstaller to build the application."""
-    print("\n🔨 Building application...")
-    print("  This may take a few minutes...\n")
-    
-    cmd = [
-        sys.executable, '-m', 'PyInstaller',
-        f'{APP_NAME}.spec',
-        '--clean',
-        '--noconfirm',
-    ]
-    
-    result = subprocess.run(cmd, capture_output=False)
-    
-    return result.returncode == 0
+def clean() -> None:
+    log("cleaning previous build output")
+    for directory in (cfg.BUILD_DIR, cfg.DIST_DIR):
+        if directory.exists():
+            shutil.rmtree(directory)
 
 
-def post_build_cleanup():
-    """Clean up after build and show results."""
-    print("\n🧹 Post-build cleanup...")
-    
-    # Remove version info file
-    if os.path.exists('version_info.txt'):
-        os.remove('version_info.txt')
-        print("  ✓ Removed version_info.txt")
-    
-    # Check if build was successful
-    exe_path = Path(f'dist/{APP_NAME}/{APP_NAME}.exe')
-    if exe_path.exists():
-        size_mb = exe_path.stat().st_size / (1024 * 1024)
-        print(f"\n{'='*60}")
-        print(f"✅ BUILD SUCCESSFUL!")
-        print(f"{'='*60}")
-        print(f"📁 Output: dist/{APP_NAME}/")
-        print(f"📦 EXE size: {size_mb:.1f} MB")
-        print(f"\n💡 To run: dist/{APP_NAME}/{APP_NAME}.exe")
-        print(f"\n📋 Next step: Create installer with Inno Setup")
-        return True
-    else:
-        print(f"\n{'='*60}")
-        print(f"❌ BUILD FAILED!")
-        print(f"{'='*60}")
-        print("Check the output above for errors.")
-        return False
+def build_app(version: str) -> None:
+    if not (cfg.ROOT_DIR / "webui" / "dist").exists():
+        log("warning: webui/dist is missing, the panel will not be bundled")
+    cfg.write_version_info(version=version)
+    log(f"running PyInstaller for version {version}")
+    run(
+        [
+            sys.executable,
+            "-m",
+            "PyInstaller",
+            str(cfg.SPEC_FILE),
+            "--noconfirm",
+            "--clean",
+            "--distpath",
+            str(cfg.DIST_DIR),
+            "--workpath",
+            str(cfg.BUILD_DIR / "pyinstaller"),
+        ],
+        cwd=cfg.ROOT_DIR,
+    )
+    if not cfg.APP_DIST_DIR.exists():
+        fail(f"expected output directory {cfg.APP_DIST_DIR} was not produced")
+    size = sum(path.stat().st_size for path in cfg.APP_DIST_DIR.rglob("*") if path.is_file())
+    log(f"application built, {size / (1024 * 1024):.1f} MB in {cfg.APP_DIST_DIR}")
 
 
-def main():
-    """Main build process."""
-    print(f"""
-{'='*60}
-🎮 LoL Voice Assistant - Build System
-{'='*60}
-""")
-    
-    if not check_requirements():
-        sys.exit(1)
-    
-    clean_build()
-    create_version_file()
-    create_spec_file()
-    
-    if run_pyinstaller():
-        post_build_cleanup()
-    else:
-        print("\n❌ PyInstaller failed!")
-        sys.exit(1)
+def build_installer(version: str) -> None:
+    if not cfg.APP_DIST_DIR.exists():
+        fail("no application build found, run with --app-only first")
+    iscc = find_iscc()
+    if not iscc:
+        fail("Inno Setup compiler (ISCC.exe) not found")
+    cfg.INSTALLER_DIR.mkdir(parents=True, exist_ok=True)
+    log("compiling the installer")
+    run(
+        [
+            str(iscc),
+            f"/DMyAppVersion={version}",
+            f"/O{cfg.INSTALLER_DIR}",
+            f"/F{cfg.INSTALLER_BASENAME}",
+            str(cfg.INSTALLER_SCRIPT),
+        ],
+        cwd=cfg.ROOT_DIR,
+    )
+    if not cfg.INSTALLER_FILE.exists():
+        fail(f"installer was not produced at {cfg.INSTALLER_FILE}")
+    log(f"installer ready: {cfg.INSTALLER_FILE}")
 
 
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\n⚠️ Build cancelled by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ Build error: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+def build_portable(version: str) -> None:
+    if not cfg.APP_DIST_DIR.exists():
+        fail("no application build found, run with --app-only first")
+    target = cfg.portable_zip_path(version)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        target.unlink()
+    log(f"packing the portable ZIP: {target.name}")
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(cfg.APP_DIST_DIR.rglob("*")):
+            if path.is_file():
+                archive.write(path, Path(cfg.APP_NAME) / path.relative_to(cfg.APP_DIST_DIR))
+        # Marker file: the application keeps its data next to the executable
+        # when it finds this, instead of using APPDATA.
+        archive.writestr(f"{cfg.APP_NAME}/portable.txt", "Portable mode. Data is kept in this folder.\n")
+    log(f"portable ZIP ready: {target} ({target.stat().st_size / (1024 * 1024):.1f} MB)")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Build LoL Voice Controller.")
+    stage = parser.add_mutually_exclusive_group()
+    stage.add_argument("--app-only", action="store_true", help="only run PyInstaller")
+    stage.add_argument("--installer-only", action="store_true", help="only compile the installer")
+    stage.add_argument("--portable-only", action="store_true", help="only pack the portable ZIP")
+    parser.add_argument("--with-webui", action="store_true", help="run npm ci and npm run build in webui/ first")
+    parser.add_argument("--version", help="override the version, defaults to version.json")
+    parser.add_argument("--no-clean", action="store_true", help="keep previous build output")
+    args = parser.parse_args(argv)
+
+    version = args.version or cfg.get_version()
+    do_app = args.app_only or not (args.installer_only or args.portable_only)
+    do_installer = args.installer_only or not (args.app_only or args.portable_only)
+    do_portable = args.portable_only or not (args.app_only or args.installer_only)
+
+    if do_installer and os.name != "nt":
+        fail("the installer can only be built on Windows")
+
+    check_environment(need_installer=do_installer)
+
+    if args.with_webui:
+        build_webui()
+
+    if do_app:
+        if not args.no_clean:
+            clean()
+        build_app(version)
+    if do_installer:
+        build_installer(version)
+    if do_portable:
+        build_portable(version)
+
+    log("done")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

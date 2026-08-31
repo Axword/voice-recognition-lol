@@ -1,278 +1,300 @@
-# controls/mapping_manager.py
+"""Dopasowanie wypowiedzianego tekstu do klawisza.
+
+Zrodlem prawdy dla trybu, czulosci i klawiszy summonerow jest obiekt Settings
+z app.config. Ten modul nie czyta i nie zapisuje zadnych plikow.
+"""
+
+from __future__ import annotations
 
 import difflib
 import re
-import json
-import random
-from typing import Optional, Union
+
+from app import config
+from app.config import Settings
+from controls import command_languages as cl
+from app.logging_setup import get_logger
+
+log = get_logger("mappings")
+
+SOURCE_LETTER = "letter"
+SOURCE_CHAMPION = "champion"
+SOURCE_EXTRA = "extra"
+
 
 class MappingManager:
-    def __init__(self, language="pl_PL", debug=True):
-        self.language = language
+    def __init__(self, settings: Settings | None = None, debug: bool = False) -> None:
         self.debug = debug
-        self.config = self._load_config()
-        self.mode = self.config.get("recognition_mode", "letters")
-        self.sensitivity = self.config.get("spell_sensitivity", "medium")
-        self.spell_thresholds = {
-            "low": 0.75,
-            "medium": 0.60,
-            "high": 0.40
-        }
+        self._settings = settings or config.load()
+        self.spell_thresholds = {"low": 0.75, "medium": 0.60, "high": 0.40}
         self.extra_commands_threshold = 0.65
+        self.ability_threshold = 0.55
 
         self._PL_TRANSLATION = str.maketrans(
             {"ą": "a", "ć": "c", "ę": "e", "ł": "l", "ń": "n", "ó": "o", "ś": "s", "ź": "z", "ż": "z"}
         )
-        
+
+        self.champion_spell_mappings: dict[str, str] = {}
+        self.command_cache: dict[str, str | None] = {}
+        self._rebuild()
+
+    # --- konfiguracja -------------------------------------------------
+
+    @property
+    def settings(self) -> Settings:
+        return self._settings
+
+    @settings.setter
+    def settings(self, value: Settings) -> None:
+        self._settings = value
+        self._rebuild()
+
+    @property
+    def language(self) -> str:
+        return self._settings.language
+
+    @property
+    def mode(self) -> str:
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: str) -> None:
+        self._mode = value
+        self.command_cache.clear()
+        self.active_mappings = self._build_active_mappings()
+
+    def _rebuild(self) -> None:
+        """Przelicza wszystkie mapowania na podstawie aktualnych ustawien."""
+        self._mode = self._settings.recognition_mode
+        self.sensitivity = self._settings.spell_sensitivity
         self.ability_mappings_exact = self._generate_ability_exact()
         self.ability_mappings_fuzzy = self._generate_ability_fuzzy()
         self.extra_commands = self._generate_extra_commands()
-        self.champion_spell_mappings = {}
-        self.command_cache = {}
+        self.command_cache.clear()
         self.active_mappings = self._build_active_mappings()
 
-
-    def _load_config(self) -> dict:
-        try:
-            with open("config/config.json", "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            import os
-            os.makedirs("config", exist_ok=True)
-            default_config = {
-                "recognition_mode": "letters",
-                "spell_sensitivity": "medium"
-            }
-            with open("config/config.json", "w", encoding="utf-8") as f:
-                json.dump(default_config, f, indent=2)
-            return default_config
+    # --- normalizacja -------------------------------------------------
 
     def normalize(self, text: str) -> str:
-        """Normalize text for matching."""
-        text = re.sub(r'[^\w\s]', '', text)
+        """Normalizacja tekstu przed dopasowaniem."""
+        text = re.sub(r"[^\w\s]", "", text)
+        # Przeciagniete gloski ("arrr", "eeee") zwijamy do jednej litery,
+        # zadne slowo w komendach nie ma potrojonej litery.
+        text = re.sub(r"(.)\1{2,}", r"\1", text)
         return text.lower().strip().translate(self._PL_TRANSLATION)
 
-    def _generate_ability_exact(self) -> dict:
-        """
-        Exact mappings for Q, W, E, R - used in 'letters' mode
-        """
-        return {
-            "q": "q", "kju": "q", "ku": "q", "kiu": "q", "ok": "q",
-            "w": "w", "wu": "w", "vu": "w", "wow": "w", "bo": "w",
-            "e": "e", "je": "e", "a": "e", "tak": "e", "ale": "e",
-            "r": "r", "er": "r", "ar": "r", "ult": "r", "ulti": "r",
-        }
+    # --- slowniki -----------------------------------------------------
 
-    def _generate_ability_fuzzy(self) -> dict:
-        """
-        Fuzzy mappings for Q, W, E, R - used in 'letters' mode
-        """
-        return {
-            # Q fuzzy
-            "ciu": "q", "tiu": "q", "czu": "q", "chcial": "q", "dlaczego": "q",
-            "dzien dobry": "q", "ka": "q", "thank you": "q",
-            
-            # W fuzzy
-            "buch": "w", "wluch": "w", "wy": "w", "ty": "w",
-            "low": "w", "wol": "w", "lol": "w", "wuf": "w", "luf": "w",
-            "wiem": "w", "zim": "w", "wiesz": "w", "zbyt": "w",
-            
-            # E fuzzy
-            "eh": "e", "eee": "e", "bye": "e", "ej": "e",
-            
-            # R fuzzy
-            "uld": "r", "olt": "r", "olde": "r", "wojt": "r",
-            "ultymat": "r", "ul": "r", "ur": "r", "rka": "r", "ultimate": "r",
-        }
+    def _active_language_tables(self, tables: dict[str, dict[str, str]]) -> list[dict[str, str]]:
+        """Slowniki dla biezacego jezyka albo wszystkie przy wlaczonym scaleniu."""
+        if self._settings.merge_command_languages:
+            return list(tables.values())
+        prefix = cl.language_prefix(self._settings.language)
+        chosen = tables.get(prefix)
+        return [chosen] if chosen else []
 
-    def _generate_extra_commands(self) -> dict:
-        """
-        Extra commands available in all modes.
-        """
-        flash_key = self.config.get("flash_key", "d")
-        summ2_key = self.config.get("summoner2_key", "f")
-        
-        commands = {
-            "flash": flash_key, "flasz": flash_key, "blysk": flash_key, "flas": flash_key,
-            "bo jest": flash_key, "zlasz": flash_key, "klasz": flash_key, "slasz": flash_key,
-            
-            "heal": summ2_key, "hil": summ2_key, "leczenie": summ2_key, "uzdrowienie": summ2_key,
-            "barrier": summ2_key, "bariera": summ2_key, "shield": summ2_key, "tarcza": summ2_key,
-            "cleanse": summ2_key, "oczyszczenie": summ2_key, "clean": summ2_key,
-            "ignite": summ2_key, "podpalenie": summ2_key, "ignajt": summ2_key,
-            "exhaust": summ2_key, "wyczerpanie": summ2_key,
-            "ghost": summ2_key, "duch": summ2_key,
-            "teleport": summ2_key, "teleportacja": summ2_key, "tp": summ2_key,
-            "smite": summ2_key, "karanie": summ2_key, "smajt": summ2_key,
-            
-            "stop": "s", "zatrzymaj": "s", "stoj": "s", "halt": "s",
-            "back": "b", "baza": "b", "recall": "b", "powrot": "b", "base": "b",
-            "shop": "p", "sklep": "p",
-            
-            "escape": "escape", "esc": "escape", "anuluj": "escape", "cancel": "escape",
-            "random": "random", "losowa": "random", "cokolwiek": "random", "losowo": "random",
-            
-            "niewygodnie mi sie siedzi": "escape",
-            "niewdzieczna gowno gra": "escape",
-            "no i wylaczam streama": "escape",
+    def _generate_ability_exact(self) -> dict[str, str]:
+        """Dokladne mapowania Q, W, E, R dla trybu 'letters'."""
+        merged = dict(cl.LETTERS_UNIVERSAL)
+        for table in self._active_language_tables(cl.LETTERS_BY_LANG):
+            merged.update(table)
+        return {self.normalize(k): v for k, v in merged.items()}
+
+    def _generate_ability_fuzzy(self) -> dict[str, str]:
+        """Mapowania rozmyte Q, W, E, R dla trybu 'letters'."""
+        merged: dict[str, str] = {}
+        for table in self._active_language_tables(cl.LETTER_FUZZY_BY_LANG):
+            merged.update(table)
+        return {self.normalize(k): v for k, v in merged.items()}
+
+    def _generate_extra_commands(self) -> dict[str, str]:
+        """Komendy dodatkowe dla biezacego jezyka (albo wszystkich po scaleniu)."""
+        flash_key = self._settings.flash_key
+        summ2_key = self._settings.summoner2_key
+
+        merged = dict(cl.EXTRAS_UNIVERSAL)
+        # Angielskie skroty sa lingua franca LoL-a, wiec przy braku slownika
+        # dla danego jezyka zostaje chociaz angielski.
+        tables = self._active_language_tables(cl.EXTRAS_BY_LANG)
+        if not tables and not self._settings.merge_command_languages:
+            tables = [cl.EXTRAS_BY_LANG["en"]]
+        for table in tables:
+            merged.update(table)
+
+        commands = {}
+        for phrase, slot in merged.items():
+            if slot == cl.FLASH:
+                commands[phrase] = flash_key
+            elif slot == cl.SUMM2:
+                commands[phrase] = summ2_key
+            else:
+                commands[phrase] = slot
+
+        # Sama litera skonfigurowanego klawisza tez jest komenda: "d" wciska
+        # Flasha, "f" drugi czar. Do tego wymowa litery po polsku i angielsku.
+        spoken_letters = {
+            "d": ("de", "di"),
+            "f": ("ef", "fe"),
+            "g": ("gie", "dzi"),
+            "t": ("te", "ti"),
         }
-        
+        for key in (flash_key, summ2_key):
+            if key and len(key) == 1 and key not in commands:
+                commands[key] = key
+                for spoken in spoken_letters.get(key, ()):
+                    commands.setdefault(spoken, key)
+
         return {self.normalize(k): v for k, v in commands.items()}
 
-    def _build_active_mappings(self) -> dict:
-        """Builds the active mappings based on the current mode."""
-        if self.mode == "letters":
-            if self.debug: print("DEBUG: Building active mappings for 'letters' (PRO) mode.")
-            return {**self.ability_mappings_fuzzy, **self.ability_mappings_exact, **self.extra_commands}
-        elif self.mode == "spells":
-            if self.debug: print("DEBUG: Building active mappings for 'spells' (CONTENT) mode.")
+    def _build_active_mappings(self) -> dict[str, str]:
+        """Sklada aktywny slownik na podstawie trybu."""
+        if self._mode == "spells":
+            log.debug("Building active mappings for 'spells' mode")
             return {**self.champion_spell_mappings, **self.extra_commands}
+        if self._mode != "letters":
+            log.warning("Unknown recognition mode '%s', falling back to 'letters'", self._mode)
         else:
-            if self.debug: print(f"DEBUG: Unknown mode '{self.mode}'. Falling back to 'letters' mode.")
-            return {**self.ability_mappings_fuzzy, **self.ability_mappings_exact, **self.extra_commands}
+            log.debug("Building active mappings for 'letters' mode")
+        return {**self.ability_mappings_fuzzy, **self.ability_mappings_exact, **self.extra_commands}
 
-    def load_champion_mappings(self, champion_mappings: dict):
-        """Loads champion spell mappings."""
+    # --- stan bohatera ------------------------------------------------
+
+    def load_champion_mappings(self, champion_mappings: dict) -> None:
+        """Wgrywa mapowania umiejetnosci aktualnego bohatera."""
         self.champion_spell_mappings = {self.normalize(k): v for k, v in champion_mappings.items()}
         self.command_cache.clear()
-        if self.debug:
-            print(f"DEBUG: Loaded {len(self.champion_spell_mappings)} champion spell mappings")
+        self.active_mappings = self._build_active_mappings()
+        log.debug("Loaded %d champion spell mappings", len(self.champion_spell_mappings))
 
-    def reset_to_default(self):
-        """Resets mappings."""
+    def reset_to_default(self) -> None:
+        """Czysci mapowania bohatera po zakonczeniu gry."""
         self.champion_spell_mappings = {}
         self.command_cache.clear()
+        self.active_mappings = self._build_active_mappings()
 
-    def match_command(self, text: str) -> Optional[str]:
-        """
-        Główna funkcja dopasowania komend.
-        Kolejność:
-        1. Sprawdź cache
-        2. Sprawdź umiejętności (zależnie od trybu) - PRIORYTET
-        3. Sprawdź extra commands (ZAWSZE aktywne)
-        4. Sprawdź specjalne komendy (random)
+    # --- dopasowanie --------------------------------------------------
+
+    def match_command(self, text: str) -> str | None:
+        """Dopasowuje tekst do klawisza.
+
+        Kolejnosc: cache, umiejetnosci wedlug trybu, komendy dodatkowe.
         """
         normalized_command = self.normalize(text)
-        
+
         if normalized_command in self.command_cache:
-            if self.debug:
-                print(f"DEBUG: Cache hit for '{normalized_command}'")
+            log.debug("Cache hit for '%s'", normalized_command)
             return self.command_cache[normalized_command]
-        
-        if self.mode == "letters":            
-            if normalized_command in self.ability_mappings_exact:
-                result = self.ability_mappings_exact[normalized_command]
-                self.command_cache[normalized_command] = result
-                if self.debug:
-                    print(f"DEBUG: Ability exact match: '{normalized_command}' -> {result}")
-                return result
-            
-            combined_abilities = {**self.ability_mappings_fuzzy, **self.ability_mappings_exact}
-            best_ability_match = self._find_fuzzy_match(
-                normalized_command,
-                combined_abilities,
-                0.55
+
+        # Nieznany tryb zachowuje sie jak "letters", tak jak przy budowie mapowan.
+        mode = self._mode if self._mode in ("letters", "spells") else "letters"
+
+        if mode == "letters":
+            ability_pool = {**self.ability_mappings_fuzzy, **self.ability_mappings_exact}
+            ability_threshold = self.ability_threshold
+            exact_pool = self.ability_mappings_exact
+        else:
+            ability_pool = self.champion_spell_mappings
+            ability_threshold = self.spell_thresholds.get(self.sensitivity, 0.60)
+            exact_pool = self.champion_spell_mappings
+
+        if normalized_command in exact_pool:
+            result = exact_pool[normalized_command]
+            self.command_cache[normalized_command] = result
+            log.debug("Ability exact match: '%s' -> %s", normalized_command, result)
+            return result
+
+        # Dokladne trafienie w komendy dodatkowe idzie PRZED rozmytym dopasowaniem
+        # umiejetnosci. Inaczej "back" w trybie liter ladowalo w E, a "heal" w Q.
+        if normalized_command in self.extra_commands:
+            result = self.extra_commands[normalized_command]
+            self.command_cache[normalized_command] = result
+            log.debug("Extra command exact match: '%s' -> %s", normalized_command, result)
+            return result
+
+        best_ability_match = self._find_fuzzy_match(normalized_command, ability_pool, ability_threshold)
+        if best_ability_match:
+            self.command_cache[normalized_command] = best_ability_match[1]
+            log.debug(
+                "Ability fuzzy match (threshold=%.2f): '%s' -> '%s' -> %s",
+                ability_threshold, normalized_command, best_ability_match[0], best_ability_match[1],
             )
-            if best_ability_match:
-                self.command_cache[normalized_command] = best_ability_match[1]
-                if self.debug:
-                    print(f"DEBUG: Ability fuzzy match: '{normalized_command}' -> "
-                        f"'{best_ability_match[0]}' -> {best_ability_match[1]}")
-                return best_ability_match[1]
-                
-        elif self.mode == "spells":
-            if normalized_command in self.champion_spell_mappings:
-                result = self.champion_spell_mappings[normalized_command]
-                self.command_cache[normalized_command] = result
-                if self.debug:
-                    print(f"DEBUG: Champion spell exact match: '{normalized_command}' -> {result}")
-                return result
-            
-            threshold = self.spell_thresholds.get(self.sensitivity, 0.60)
-            best_spell_match = self._find_fuzzy_match(
-                normalized_command,
-                self.champion_spell_mappings,
-                threshold
-            )
-            if best_spell_match:
-                self.command_cache[normalized_command] = best_spell_match[1]
-                if self.debug:
-                    print(f"DEBUG: Champion spell fuzzy match (threshold={threshold:.2f}): "
-                        f"'{normalized_command}' -> '{best_spell_match[0]}' -> {best_spell_match[1]}")
-                return best_spell_match[1]
+            return best_ability_match[1]
 
         if normalized_command in self.extra_commands:
             result = self.extra_commands[normalized_command]
             self.command_cache[normalized_command] = result
-            if self.debug:
-                print(f"DEBUG: Extra command exact match: '{normalized_command}' -> {result}")
+            log.debug("Extra command exact match: '%s' -> %s", normalized_command, result)
             return result
-        
+
         best_extra_match = self._find_fuzzy_match(
-            normalized_command, 
-            self.extra_commands, 
-            self.extra_commands_threshold
+            normalized_command, self.extra_commands, self.extra_commands_threshold
         )
         if best_extra_match:
             self.command_cache[normalized_command] = best_extra_match[1]
-            if self.debug:
-                print(f"DEBUG: Extra command fuzzy match: '{normalized_command}' -> "
-                    f"'{best_extra_match[0]}' -> {best_extra_match[1]}")
+            log.debug(
+                "Extra command fuzzy match: '%s' -> '%s' -> %s",
+                normalized_command, best_extra_match[0], best_extra_match[1],
+            )
             return best_extra_match[1]
 
-        if self.debug:
-            print(f"DEBUG: No match found for '{normalized_command}'")
+        log.debug("No match found for '%s'", normalized_command)
         return None
 
-    def _find_fuzzy_match(self, command: str, mappings: dict, threshold: float) -> Optional[tuple]:
-        """
-        Pomocnicza funkcja do szukania fuzzy match.
-        Zwraca tuple (matched_phrase, key) lub None.
-        """
+    def _find_fuzzy_match(self, command: str, mappings: dict, threshold: float) -> tuple | None:
+        """Zwraca (dopasowana_frazy, klawisz) albo None."""
         best_match = None
         highest_similarity = 0.0
-        
+
         for phrase, key in mappings.items():
             if len(phrase) <= 2 and command != phrase:
                 continue
-            
+
             similarity = difflib.SequenceMatcher(None, phrase, command).ratio()
-            
+
             if similarity >= threshold and similarity > highest_similarity:
                 highest_similarity = similarity
                 best_match = (phrase, key, similarity)
-        
+
         if best_match:
-            if self.debug:
-                print(f"DEBUG: Fuzzy matching: '{command}' ~= '{best_match[0]}' "
-                      f"(similarity: {best_match[2]:.2f})")
+            log.debug(
+                "Fuzzy matching: '%s' ~= '%s' (similarity %.2f)", command, best_match[0], best_match[2]
+            )
             return (best_match[0], best_match[1])
-        
+
         return None
 
-    def set_sensitivity(self, level: str):
-        """Ustawia czułość rozpoznawania dla trybu spells."""
+    # --- widok dla panelu ---------------------------------------------
+
+    def describe_mappings(self) -> list[dict]:
+        """Aktywne mapowania w formie [{phrase, key, source}]."""
+        rows: list[dict] = []
+        seen: set[str] = set()
+
+        def add(source: str, mapping: dict) -> None:
+            for phrase, key in mapping.items():
+                if phrase in seen:
+                    continue
+                seen.add(phrase)
+                rows.append({"phrase": phrase, "key": key, "source": source})
+
+        if self._mode == "spells":
+            add(SOURCE_CHAMPION, self.champion_spell_mappings)
+        else:
+            add(SOURCE_LETTER, self.ability_mappings_exact)
+            add(SOURCE_LETTER, self.ability_mappings_fuzzy)
+        add(SOURCE_EXTRA, self.extra_commands)
+        return rows
+
+    def set_sensitivity(self, level: str) -> None:
+        """Ustawia czulosc dla trybu spells. Zapis do dysku robi warstwa app.config."""
         self.command_cache.clear()
         if level in self.spell_thresholds:
             self.sensitivity = level
-            self.config["spell_sensitivity"] = level
-            self._save_config()
-            if self.debug:
-                print(f"DEBUG: Sensitivity set to {level} (threshold: {self.spell_thresholds[level]})")
-
-    def _save_config(self):
-        """Zapisuje konfigurację."""
-        try:
-            with open("config/config.json", "w", encoding="utf-8") as f:
-                json.dump(self.config, f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            if self.debug:
-                print(f"DEBUG: Error saving config: {e}")
+            log.debug("Sensitivity set to %s (threshold %.2f)", level, self.spell_thresholds[level])
 
     def get_statistics(self) -> dict:
-        """Zwraca statystyki mapowań."""
+        """Statystyki mapowan, uzywane przez panel i logi diagnostyczne."""
         return {
-            "mode": self.mode,
+            "mode": self._mode,
             "sensitivity": self.sensitivity,
             "ability_exact": len(self.ability_mappings_exact),
             "ability_fuzzy": len(self.ability_mappings_fuzzy),
@@ -280,5 +302,5 @@ class MappingManager:
             "champion_spells": len(self.champion_spell_mappings),
             "cache_size": len(self.command_cache),
             "total_active": len(self.active_mappings),
-            "spell_threshold": self.spell_thresholds.get(self.sensitivity, 0.60)
+            "spell_threshold": self.spell_thresholds.get(self.sensitivity, 0.60),
         }

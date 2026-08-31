@@ -1,0 +1,93 @@
+[project]
+name = "lol-voice-controller"
+version = "1.0.0"
+description = "Voice control for League of Legends, running locally on Whisper"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "licence" }
+authors = [{ name = "Axword" }]
+keywords = ["league-of-legends", "speech-recognition", "whisper", "voice-control"]
+classifiers = [
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Games/Entertainment",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dynamic = ["dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/Axword/voice-recognition-lol"
+Source = "https://github.com/Axword/voice-recognition-lol"
+Issues = "https://github.com/Axword/voice-recognition-lol/issues"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies.dev = { file = ["requirements-dev.txt"] }
+
+[tool.setuptools]
+packages = ["app", "controller", "controls", "game", "server"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = [
+    "old_files",
+    "gui",
+    "setup.py",
+    "resource_helper.py",
+    "build",
+    "dist",
+    "installer_output",
+    "webui",
+    "models",
+    "tests/fixtures",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # import sorting
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "C4",   # comprehensions
+    "SIM",  # simplify
+    "RUF",  # ruff specific
+]
+ignore = [
+    "B008",    # function call in argument default, FastAPI Depends relies on it
+    "RUF001",  # ambiguous unicode in strings, Polish copy trips this
+    "RUF002",
+    "RUF003",
+    "SIM105",  # contextlib.suppress is not always clearer
+    "UP045",   # Optional[X] is used consistently in this codebase
+    "RUF100",  # noqa codes for rules we deliberately leave unselected
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E501"]
+"*.spec" = ["F821"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "controller", "controls", "game", "server", "tools"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+asyncio_mode = "auto"
+filterwarnings = ["default"]
+markers = [
+    "slow: takes more than a few seconds, skipped on pull requests",
+    "audio: needs generated audio fixtures and a speech model",
+    "windows: only meaningful on Windows",
+]
