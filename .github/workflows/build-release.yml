@@ -73,6 +73,9 @@ jobs:
           GITHUB_REF_NAME: ${{ github.ref_name }}
           EVENT_NAME: ${{ github.event_name }}
           RELEASE_TYPE: ${{ inputs.release_type }}
+          # shell: python uruchamia skrypt z katalogu tymczasowego, wiec
+          # korzen repo trzeba wskazac recznie.
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           import os
           import build_config as cfg
@@ -131,6 +134,8 @@ jobs:
       - name: Hash artifacts
         id: hash
         shell: python
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           import hashlib
           import os
