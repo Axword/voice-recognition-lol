@@ -112,4 +112,14 @@ tools/        repository checks
 
 ## License
 
-See [licence](licence).
+GNU General Public License version 3 or later. The full text is in [LICENSE](LICENSE).
+
+In short: you may use, study, share and modify the application, and if you
+distribute a modified version you pass the same freedoms on, with the source.
+The copyright stays with the author, so a separate commercial licence can be
+granted on request.
+
+The installer and the portable package bundle third party libraries, each under
+its own licence. They are listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), which
+`tools/generate_notices.py` regenerates from the installed packages.

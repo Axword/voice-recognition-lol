@@ -27,6 +27,8 @@ VersionInfoProductName={#MyAppName}
 VersionInfoCompany={#MyAppPublisher}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
+AppCopyright=Copyright (C) 2026 Axword, GNU GPL v3 or later
+LicenseFile=LICENSE
 AppSupportURL={#MyAppURL}/issues
 AppUpdatesURL={#MyAppURL}/releases
 
