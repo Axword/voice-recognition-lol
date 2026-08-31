@@ -99,8 +99,6 @@ class Transcriber:
         return WhisperModel
 
     def _load_faster_whisper(self, engine) -> None:
-        from app import paths
-
         WhisperModel = self._import_faster_whisper()
         name = engine.model or "tiny"
         device = "cuda" if engine.requires_cuda else "cpu"

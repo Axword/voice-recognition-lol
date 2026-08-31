@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Rozpoznawanie komend we wszystkich jezykach panelu na prawdziwych MP3.
 
 Fixture'y robi tests/tools/generate_command_fixtures.py (edge-tts): litery
@@ -16,9 +15,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import audio_support as support
 import pytest
 
-import audio_support as support
 from app.config import Settings
 from controls.mapping_manager import MappingManager
 

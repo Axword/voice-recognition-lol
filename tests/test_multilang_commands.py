@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Komendy glosowe per jezyk: kazdy jezyk trafia w swoje slowa i nie widzi cudzych.
 
 Czyste testy logiki dopasowania, bez audio i bez sieci. Warstwe wymowy

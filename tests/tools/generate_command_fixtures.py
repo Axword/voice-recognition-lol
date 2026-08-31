@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Generator fixture'ow audio dla komend glosowych we wszystkich jezykach panelu.
 
 Dla kazdego jezyka nagrywa (edge-tts) wypowiedziane: litery Q W E R, slowo na
@@ -30,8 +29,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
 
-from controls import command_languages as cl  # noqa: E402
 from generate_audio_fixtures import EdgeEngine, normalize_audio, require_ffmpeg  # noqa: E402
+
+from controls import command_languages as cl  # noqa: E402
 
 OUT_DIR = REPO_ROOT / "tests" / "fixtures" / "audio" / "commands"
 

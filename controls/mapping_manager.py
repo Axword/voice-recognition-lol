@@ -11,8 +11,8 @@ import re
 
 from app import config
 from app.config import Settings
-from controls import command_languages as cl
 from app.logging_setup import get_logger
+from controls import command_languages as cl
 
 log = get_logger("mappings")
 

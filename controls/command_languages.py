@@ -42,7 +42,11 @@ LETTERS_BY_LANG: dict[str, dict[str, str]] = {
         "ee": "e",
         "are": "r", "ar": "r", "ult": "r", "ulti": "r", "ultimate": "r",
     },
-    "de": {"ku": "q", "kuh": "q", "cool": "q", "we": "w", "weh": "w", "doppel u": "w", "er": "r", "err": "r", "ult": "r", "ulti": "r"},
+    "de": {
+        "ku": "q", "kuh": "q", "cool": "q",
+        "we": "w", "weh": "w", "doppel u": "w",
+        "er": "r", "err": "r", "ult": "r", "ulti": "r",
+    },
     "fr": {"cu": "q", "double ve": "w", "eu": "e", "erre": "r", "ult": "r"},
     "es": {"cu": "q", "doble u": "w", "erre": "r", "ulti": "r"},
     "it": {"cu": "q", "doppia vu": "w", "erre": "r", "ulti": "r"},
