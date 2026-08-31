@@ -22,9 +22,10 @@ webrtcvad>=2.0.10
 # and provides the CUDA engines.
 pywhispercpp>=1.2.0
 faster-whisper>=1.1
-# webrtcvad imports pkg_resources: gone from fresh venvs since Python 3.12 and
-# removed from setuptools 81+, so we pin an older setuptools
-setuptools>=68,<81
+# webrtcvad imports pkg_resources: gone from fresh venvs since Python 3.12,
+# removed from setuptools 81+, and in 71..80 pkg_resources pulls vendored
+# jaraco in a way PyInstaller cannot freeze. 68..70 is self-contained.
+setuptools>=68,<71
 
 # Input simulation, game client polling, process helpers
 pynput>=1.7.6
