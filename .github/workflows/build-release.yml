@@ -38,6 +38,8 @@ jobs:
   build:
     name: Build Windows package
     runs-on: windows-latest
+    env:
+      SIGNING_CERT: ${{ secrets.SIGNING_CERT_BASE64 }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
@@ -113,6 +115,25 @@ jobs:
       - name: Build application
         run: python build.py --app-only
 
+      # Smart App Control i SmartScreen blokuja niepodpisane pliki wykonywalne.
+      # Podpis wlacza sie sam, gdy repozytorium ma sekrety certyfikatu; bez nich
+      # krok jest pomijany i build idzie dalej jak dotad.
+      - name: Sign application binaries
+        if: env.SIGNING_CERT != ''
+        shell: pwsh
+        env:
+          SIGNING_CERT: ${{ secrets.SIGNING_CERT_BASE64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGNING_CERT))
+          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Recurse -Filter signtool.exe |
+            Where-Object { $_.FullName -like '*x64*' } | Select-Object -First 1
+          $targets = Get-ChildItem dist/LoLVoice -Recurse -Include *.exe, *.dll, *.pyd
+          & $signtool.FullName sign /fd SHA256 /f $pfx /p $env:SIGNING_PASSWORD `
+            /tr http://timestamp.digicert.com /td SHA256 $targets.FullName
+          Remove-Item $pfx -Force
+
       # windows-latest ships Inno Setup 6. Install it only if the image ever
       # drops it, so the normal path costs nothing.
       - name: Ensure Inno Setup
@@ -127,6 +148,21 @@ jobs:
 
       - name: Build installer
         run: python build.py --installer-only
+
+      - name: Sign installer
+        if: env.SIGNING_CERT != ''
+        shell: pwsh
+        env:
+          SIGNING_CERT: ${{ secrets.SIGNING_CERT_BASE64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGNING_CERT))
+          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Recurse -Filter signtool.exe |
+            Where-Object { $_.FullName -like '*x64*' } | Select-Object -First 1
+          & $signtool.FullName sign /fd SHA256 /f $pfx /p $env:SIGNING_PASSWORD `
+            /tr http://timestamp.digicert.com /td SHA256 dist/installer/LoLVoiceSetup.exe
+          Remove-Item $pfx -Force
 
       - name: Build portable ZIP
         run: python build.py --portable-only

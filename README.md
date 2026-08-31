@@ -20,6 +20,14 @@ Installer (recommended):
 The binaries are not code signed yet, so Windows SmartScreen may warn the first time.
 Choose "More info" and then "Run anyway".
 
+If Windows has Smart App Control turned on, it blocks unsigned binaries outright:
+the installer stops with error 4551, or the application starts and then reports a
+blocked DLL. Smart App Control has no per file exception list. Either turn it off
+in Windows Security, under App and browser control (this cannot be turned back on
+without reinstalling Windows), or build from source, where the binaries are local
+and are not blocked. Most machines have Smart App Control off, since it only stays
+on when a clean Windows 11 install never runs unsigned software.
+
 Winget:
 
 ```
