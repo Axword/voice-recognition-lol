@@ -216,6 +216,9 @@ jobs:
           {
             echo 'notes<<CHANGELOG_EOF'
             cat notes.md
+            # git log --pretty=format nie konczy pliku nowa linia, a delimiter
+            # musi stac w osobnej linii.
+            echo ''
             echo 'CHANGELOG_EOF'
           } >> "$GITHUB_OUTPUT"
 
