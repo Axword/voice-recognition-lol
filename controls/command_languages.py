@@ -55,7 +55,7 @@ LETTERS_BY_LANG: dict[str, dict[str, str]] = {
     "tr": {"kü": "q", "çift ve": "w", "re": "r", "ulti": "r"},
     "ko": {"큐": "q", "더블유": "w", "이": "e", "알": "r", "궁": "r", "궁극기": "r"},
     "ja": {"キュー": "q", "ダブリュー": "w", "イー": "e", "アール": "r", "ウルト": "r"},
-    "zh": {"大招": "r", "大抽": "r"},
+    "zh": {"大招": "r", "大抽": "r", "大超": "r"},
     "th": {"คิว": "q", "ดับเบิลยู": "w", "อี": "e", "อาร์": "r"},
     "vi": {"quy": "q", "vê kép": "w", "e": "e", "rờ": "r", "chiêu cuối": "r"},
     "id": {"ki": "q", "we": "w", "er": "r", "ulti": "r"},
@@ -75,7 +75,8 @@ LETTER_FUZZY_BY_LANG: dict[str, dict[str, str]] = {
         "low": "w", "wol": "w", "wuf": "w", "luf": "w",
         "wiem": "w", "zim": "w", "wiesz": "w", "zbyt": "w",
         "eh": "e", "eee": "e", "ej": "e",
-        "klo": "q", "kwu": "q",
+        "klo": "q", "kwu": "q", "kol": "q", "kul": "q",
+        "altaj": "r", "ulty": "r",
         "uld": "r", "olt": "r", "olde": "r", "wojt": "r",
         "ultymat": "r", "ul": "r", "ur": "r", "rka": "r",
     },
@@ -218,7 +219,7 @@ EXTRAS_BY_LANG: dict[str, dict[str, str]] = {
     # Whisper potrafi zwrocic zapis uproszczony albo tradycyjny niezaleznie od
     # locale, wiec slownik zh zawiera oba.
     "zh": {
-        "闪现": FLASH, "閃現": FLASH,
+        "闪现": FLASH, "閃現": FLASH, "閃線": FLASH, "闪线": FLASH,
         "治疗": SUMM2, "治療": SUMM2, "护盾": SUMM2, "護盾": SUMM2,
         "屏障": SUMM2,
         "净化": SUMM2, "淨化": SUMM2, "点燃": SUMM2, "點燃": SUMM2,

@@ -210,37 +210,25 @@ class MappingManager:
             log.debug("Extra command exact match: '%s' -> %s", normalized_command, result)
             return result
 
-        best_ability_match = self._find_fuzzy_match(normalized_command, ability_pool, ability_threshold)
-        if best_ability_match:
-            self.command_cache[normalized_command] = best_ability_match[1]
-            log.debug(
-                "Ability fuzzy match (threshold=%.2f): '%s' -> '%s' -> %s",
-                ability_threshold, normalized_command, best_ability_match[0], best_ability_match[1],
-            )
-            return best_ability_match[1]
-
-        if normalized_command in self.extra_commands:
-            result = self.extra_commands[normalized_command]
-            self.command_cache[normalized_command] = result
-            log.debug("Extra command exact match: '%s' -> %s", normalized_command, result)
-            return result
-
-        best_extra_match = self._find_fuzzy_match(
-            normalized_command, self.extra_commands, self.extra_commands_threshold
-        )
-        if best_extra_match:
-            self.command_cache[normalized_command] = best_extra_match[1]
-            log.debug(
-                "Extra command fuzzy match: '%s' -> '%s' -> %s",
-                normalized_command, best_extra_match[0], best_extra_match[1],
-            )
-            return best_extra_match[1]
+        # Rozmyte dopasowanie wybiera najlepszy wynik ze wszystkich puli
+        # naraz. Sekwencyjnie "wojest" trafialo w "wojt" (0.73) z puli liter,
+        # zanim "bo jest" (0.77) z komend dodatkowych dostalo szanse.
+        candidates = [
+            self._find_fuzzy_match(normalized_command, ability_pool, ability_threshold),
+            self._find_fuzzy_match(normalized_command, self.extra_commands, self.extra_commands_threshold),
+        ]
+        candidates = [entry for entry in candidates if entry]
+        if candidates:
+            phrase, key, similarity = max(candidates, key=lambda entry: entry[2])
+            self.command_cache[normalized_command] = key
+            log.debug("Fuzzy match: '%s' -> '%s' -> %s (%.2f)", normalized_command, phrase, key, similarity)
+            return key
 
         log.debug("No match found for '%s'", normalized_command)
         return None
 
     def _find_fuzzy_match(self, command: str, mappings: dict, threshold: float) -> tuple | None:
-        """Zwraca (dopasowana_frazy, klawisz) albo None."""
+        """Zwraca (dopasowana_fraza, klawisz, podobienstwo) albo None."""
         best_match = None
         highest_similarity = 0.0
 
@@ -254,13 +242,7 @@ class MappingManager:
                 highest_similarity = similarity
                 best_match = (phrase, key, similarity)
 
-        if best_match:
-            log.debug(
-                "Fuzzy matching: '%s' ~= '%s' (similarity %.2f)", command, best_match[0], best_match[2]
-            )
-            return (best_match[0], best_match[1])
-
-        return None
+        return best_match
 
     # --- widok dla panelu ---------------------------------------------
 
