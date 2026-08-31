@@ -8,6 +8,8 @@ the Start button in the panel is the normal path.
 from __future__ import annotations
 
 import argparse
+import io
+import os
 import signal
 import sys
 import threading
@@ -22,6 +24,40 @@ log = logging_setup.get_logger("main")
 _shutdown = threading.Event()
 _tray_icon: Any | None = None
 _server: Any | None = None
+
+
+class _NullStream(io.TextIOWrapper):
+    """Strumien w prozne, ktory nie udaje terminala.
+
+    Windowsowy NUL zglasza sie jako urzadzenie znakowe, wiec isatty() na nim
+    zwraca True i biblioteki zaczynaja wypisywac kody kolorow donikad.
+    """
+
+    def isatty(self) -> bool:
+        return False
+
+
+def ensure_std_streams() -> None:
+    """Podstawia strumienie, gdy Windows ich nie dal.
+
+    Wersja okienkowa uruchomiona kliknieciem ikony nie ma konsoli, wiec
+    sys.stdout i sys.stderr sa None. Biblioteki tego nie sprawdzaja: formatter
+    uvicorna wola isatty() na stdout i wywraca konfiguracje logowania, a z nia
+    start calej aplikacji.
+    """
+    for name in ("stdout", "stderr", "stdin"):
+        if getattr(sys, name, None) is not None:
+            continue
+        try:
+            raw = open(os.devnull, "rb" if name == "stdin" else "wb", buffering=0)
+            stream: Any = _NullStream(raw, encoding="utf-8", errors="replace")
+        except OSError:
+            # Bez urzadzenia zerowego zostaje bufor w pamieci.
+            stream = io.StringIO()
+        setattr(sys, name, stream)
+        # __stdout__ i spolka tez bywaja czytane, na przyklad przez colorame.
+        if getattr(sys, f"__{name}__", None) is None:
+            setattr(sys, f"__{name}__", stream)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -153,6 +189,9 @@ def run_app(args: argparse.Namespace) -> int:
         port=info.port,
         log_level="debug" if args.debug else "warning",
         access_log=args.debug,
+        # Logowanie ustawia app.logging_setup. Wlasna konfiguracja uvicorna
+        # dokladalaby handlery na konsole, ktorej w tej wersji nie ma.
+        log_config=None,
     )
     _server = uvicorn.Server(server_config)
 
@@ -242,6 +281,7 @@ def _tray_check_updates() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    ensure_std_streams()
     args = parse_args(argv)
     logging_setup.setup(debug=args.debug)
     logging_setup.install_crash_handler()
