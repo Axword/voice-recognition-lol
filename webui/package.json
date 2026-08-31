@@ -1,0 +1,25 @@
+{
+  "name": "lolvoice-webui",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.11.1",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^26.2.0",
+    "lucide-static": "^1.31.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1"
+  },
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,411 @@
+{
+  "language": "en_US",
+  "voice": "en-US-GuyNeural",
+  "engine": "edge-tts",
+  "generator": "tests/tools/generate_audio_fixtures.py",
+  "sample_rate": 16000,
+  "channels": 1,
+  "count": 40,
+  "files": [
+    {
+      "file": "tests/fixtures/audio/en_US/Aatrox/E.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "E",
+      "phrase": "Umbral Dash",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3824
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Aatrox/Q.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "Q",
+      "phrase": "The Darkin Blade",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4544
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Aatrox/R.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "R",
+      "phrase": "World Ender",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3536
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Aatrox/W.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "W",
+      "phrase": "Infernal Chains",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Ahri/E.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "E",
+      "phrase": "Charm",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 2528
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Ahri/Q.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "Q",
+      "phrase": "Orb of Deception",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 5120
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Ahri/R.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "R",
+      "phrase": "Spirit Rush",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4112
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Ahri/W.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "W",
+      "phrase": "Fox-Fire",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3680
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Garen/E.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "E",
+      "phrase": "Judgment",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3104
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Garen/Q.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "Q",
+      "phrase": "Decisive Strike",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4544
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Garen/R.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "R",
+      "phrase": "Demacian Justice",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Garen/W.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "W",
+      "phrase": "Courage",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 2816
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Hwei/E.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "E",
+      "phrase": "Subject: Torment",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 5696
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Hwei/Q.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "Q",
+      "phrase": "Subject: Disaster",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 5984
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Hwei/R.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "R",
+      "phrase": "Spiraling Despair",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 5408
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Hwei/W.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "W",
+      "phrase": "Subject: Serenity",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 6416
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Jinx/E.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "E",
+      "phrase": "Flame Chompers!",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3968
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Jinx/Q.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "Q",
+      "phrase": "Switcheroo!",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3824
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Jinx/R.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "R",
+      "phrase": "Super Mega Death Rocket!",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 6272
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Jinx/W.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "W",
+      "phrase": "Zap!",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 2240
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Katarina/E.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "E",
+      "phrase": "Shunpo",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3680
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Katarina/Q.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "Q",
+      "phrase": "Bouncing Blade",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4112
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Katarina/R.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "R",
+      "phrase": "Death Lotus",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4112
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Katarina/W.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "W",
+      "phrase": "Preparation",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3968
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Lux/E.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "E",
+      "phrase": "Lucent Singularity",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 6272
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Lux/Q.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "Q",
+      "phrase": "Light Binding",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3824
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Lux/R.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "R",
+      "phrase": "Final Spark",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3824
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Lux/W.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "W",
+      "phrase": "Prismatic Barrier",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Thresh/E.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "E",
+      "phrase": "Flay",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 2384
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Thresh/Q.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "Q",
+      "phrase": "Death Sentence",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3968
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Thresh/R.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "R",
+      "phrase": "The Box",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 2960
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Thresh/W.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "W",
+      "phrase": "Dark Passage",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3824
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Yasuo/E.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "E",
+      "phrase": "Sweeping Blade",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4256
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Yasuo/Q.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "Q",
+      "phrase": "Steel Tempest",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4400
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Yasuo/R.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "R",
+      "phrase": "Last Breath",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3248
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Yasuo/W.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "W",
+      "phrase": "Wind Wall",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3248
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Zed/E.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "E",
+      "phrase": "Shadow Slash",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4256
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Zed/Q.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "Q",
+      "phrase": "Razor Shuriken",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Zed/R.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "R",
+      "phrase": "Death Mark",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 3248
+    },
+    {
+      "file": "tests/fixtures/audio/en_US/Zed/W.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "W",
+      "phrase": "Living Shadow",
+      "voice": "en-US-GuyNeural",
+      "language": "en_US",
+      "bytes": 4112
+    }
+  ]
+}

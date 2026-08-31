@@ -1,0 +1,411 @@
+{
+  "language": "pl_PL",
+  "voice": "pl-PL-MarekNeural",
+  "engine": "edge-tts",
+  "generator": "tests/tools/generate_audio_fixtures.py",
+  "sample_rate": 16000,
+  "channels": 1,
+  "count": 40,
+  "files": [
+    {
+      "file": "tests/fixtures/audio/pl_PL/Aatrox/E.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "E",
+      "phrase": "Doskok Umbry",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4256
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Aatrox/Q.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "Q",
+      "phrase": "Ostrze Darkinów",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4544
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Aatrox/R.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "R",
+      "phrase": "Zagłada Świata",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4688
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Aatrox/W.mp3",
+      "champion": "Aatrox",
+      "champion_name": "Aatrox",
+      "slot": "W",
+      "phrase": "Piekielne Łańcuchy",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4688
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Ahri/E.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "E",
+      "phrase": "Urok",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2240
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Ahri/Q.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "Q",
+      "phrase": "Zwodnicza Kula",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4400
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Ahri/R.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "R",
+      "phrase": "Widmowa Szarża",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4544
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Ahri/W.mp3",
+      "champion": "Ahri",
+      "champion_name": "Ahri",
+      "slot": "W",
+      "phrase": "Ogniki",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3104
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Garen/E.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "E",
+      "phrase": "Osąd",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2816
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Garen/Q.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "Q",
+      "phrase": "Rozstrzygające Uderzenie",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 6272
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Garen/R.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "R",
+      "phrase": "Demaciańska Sprawiedliwość",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 6848
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Garen/W.mp3",
+      "champion": "Garen",
+      "champion_name": "Garen",
+      "slot": "W",
+      "phrase": "Odwaga",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2960
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Hwei/E.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "E",
+      "phrase": "Temat: Udręka",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 5840
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Hwei/Q.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "Q",
+      "phrase": "Temat: Katastrofa",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 6272
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Hwei/R.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "R",
+      "phrase": "Spirala Rozpaczy",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4976
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Hwei/W.mp3",
+      "champion": "Hwei",
+      "champion_name": "Hwei",
+      "slot": "W",
+      "phrase": "Temat: Spokój",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 5840
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Jinx/E.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "E",
+      "phrase": "Ogniste Gryzaki!",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Jinx/Q.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "Q",
+      "phrase": "Zmienianko!",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3680
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Jinx/R.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "R",
+      "phrase": "SuperMegaRakieta Śmierci!",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 6416
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Jinx/W.mp3",
+      "champion": "Jinx",
+      "champion_name": "Jinx",
+      "slot": "W",
+      "phrase": "Bzzzyt!",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2672
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Katarina/E.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "E",
+      "phrase": "Shunpo",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3104
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Katarina/Q.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "Q",
+      "phrase": "Skaczące Ostrza",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4976
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Katarina/R.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "R",
+      "phrase": "Lotos Śmierci",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Katarina/W.mp3",
+      "champion": "Katarina",
+      "champion_name": "Katarina",
+      "slot": "W",
+      "phrase": "Przygotowanie",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3680
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Lux/E.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "E",
+      "phrase": "Świetlista Osobliwość",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 6128
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Lux/Q.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "Q",
+      "phrase": "Związanie Światłem",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4976
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Lux/R.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "R",
+      "phrase": "Ostatnia Iskra",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4688
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Lux/W.mp3",
+      "champion": "Lux",
+      "champion_name": "Lux",
+      "slot": "W",
+      "phrase": "Pryzmatyczna Bariera",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 5120
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Thresh/E.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "E",
+      "phrase": "Młynek",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2816
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Thresh/Q.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "Q",
+      "phrase": "Wyrok Śmierci",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4400
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Thresh/R.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "R",
+      "phrase": "Pudło",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 2528
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Thresh/W.mp3",
+      "champion": "Thresh",
+      "champion_name": "Thresh",
+      "slot": "W",
+      "phrase": "Mroczne Przejście",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4688
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Yasuo/E.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "E",
+      "phrase": "Zamaszyste Cięcie",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Yasuo/Q.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "Q",
+      "phrase": "Nawałnica Stali",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4832
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Yasuo/R.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "R",
+      "phrase": "Ostatnie Tchnienie",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4400
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Yasuo/W.mp3",
+      "champion": "Yasuo",
+      "champion_name": "Yasuo",
+      "slot": "W",
+      "phrase": "Ściana Wichru",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3680
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Zed/E.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "E",
+      "phrase": "Cięcie Cienia",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3392
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Zed/Q.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "Q",
+      "phrase": "Ostrze Shuriken",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4688
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Zed/R.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "R",
+      "phrase": "Znak Śmierci",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 4256
+    },
+    {
+      "file": "tests/fixtures/audio/pl_PL/Zed/W.mp3",
+      "champion": "Zed",
+      "champion_name": "Zed",
+      "slot": "W",
+      "phrase": "Żywy Cień",
+      "voice": "pl-PL-MarekNeural",
+      "language": "pl_PL",
+      "bytes": 3536
+    }
+  ]
+}

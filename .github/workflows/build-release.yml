@@ -1,16 +1,15 @@
 name: Build and Release
 
+# Releases come from a tag or from a manual run. Pushing to main never
+# publishes anything, that is what ci.yml is for.
 on:
   push:
-    branches: [ main ]
     tags:
       - 'v*'
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type (major, minor, patch)'
+        description: 'Version bump applied to version.json'
         required: true
         default: 'patch'
         type: choice
@@ -18,321 +17,250 @@ on:
           - patch
           - minor
           - major
+      prerelease:
+        description: 'Mark the release as a prerelease'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
-  PYTHON_VERSION: '3.10'
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '20'
+
+permissions:
+  contents: write
 
 jobs:
-  version:
-    name: Generate Version
-    runs-on: ubuntu-latest
+  build:
+    name: Build Windows package
+    runs-on: windows-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
-      changelog: ${{ steps.changelog.outputs.changelog }}
-    
+      sha256: ${{ steps.hash.outputs.sha256 }}
+      installer: ${{ steps.hash.outputs.installer }}
+      portable: ${{ steps.hash.outputs.portable }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Get current version
-        id: current_version
-        run: |
-          # Read version from version.json or use default
-          if [ -f version.json ]; then
-            VERSION=$(python -c "import json; print(json.load(open('version.json'))['version'])")
-          else
-            VERSION="1.0.0"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
-      - name: Calculate next version
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: webui/package-lock.json
+
+      # version.json is the single source of truth. build_config.py reads it,
+      # so writing this one file is enough for the spec, the installer and the
+      # application itself.
+      - name: Resolve version
         id: version
-        run: |
-          CURRENT="${{ steps.current_version.outputs.version }}"
-          
-          # Parse version components
-          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT"
-          MAJOR=${VERSION_PARTS[0]}
-          MINOR=${VERSION_PARTS[1]}
-          PATCH=${VERSION_PARTS[2]}
-          
-          # Determine version bump
-          if [[ "${{ github.event.inputs.release_type }}" == "major" ]]; then
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
-          elif [[ "${{ github.event.inputs.release_type }}" == "minor" ]]; then
-            MINOR=$((MINOR + 1))
-            PATCH=0
-          else
-            PATCH=$((PATCH + 1))
-          fi
-          
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$NEW_VERSION" >> $GITHUB_OUTPUT
-          
-          # Update version.json
-          echo "{\"version\": \"$NEW_VERSION\"}" > version.json
-      
-      - name: Generate changelog
-        id: changelog
-        run: |
-          # Generate changelog from commits
-          CHANGELOG=$(git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD)
-          
-          # Format for GitHub release
-          FORMATTED_CHANGELOG="## What's Changed\n\n$CHANGELOG\n\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 2>/dev/null || echo 'v0.0.0')...v${{ steps.version.outputs.version }}"
-          
-          # Save to file for multiline output
-          echo "$FORMATTED_CHANGELOG" > changelog.txt
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$FORMATTED_CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      
-      - name: Upload version info
-        uses: actions/upload-artifact@v3
-        with:
-          name: version-info
-          path: |
-            version.json
-            changelog.txt
-
-  build-windows:
-    name: Build Windows
-    needs: version
-    runs-on: windows-latest
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-      
-      - name: Download version info
-        uses: actions/download-artifact@v3
-        with:
-          name: version-info
-      
-      - name: Update version in code
         shell: python
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TYPE: ${{ inputs.release_type }}
         run: |
-          import json
-          import re
-          
-          # Read version
-          with open('version.json') as f:
-              version_data = json.load(f)
-              version = version_data['version']
-          
-          # Update build_config.py
-          with open('build_config.py', 'r') as f:
-              content = f.read()
-          
-          content = re.sub(r'VERSION = "[^"]*"', f'VERSION = "{version}"', content)
-          
-          with open('build_config.py', 'w') as f:
-              f.write(content)
-          
-          print(f"Updated version to {version}")
-      
-      - name: Create icon if missing
-        shell: python
-        run: |
-          from PIL import Image, ImageDraw, ImageFont
           import os
-          
-          os.makedirs('assets', exist_ok=True)
-          
-          # Create simple icon if doesn't exist
-          if not os.path.exists('assets/icon.ico'):
-              img = Image.new('RGB', (256, 256), color='#2b2f36')
-              d = ImageDraw.Draw(img)
-              
-              # Draw a simple logo
-              d.ellipse([28, 28, 228, 228], fill='#00ff88')
-              d.text((128, 128), "LoL\nVC", fill='#2b2f36', anchor="mm")
-              
-              img.save('assets/icon.ico', format='ICO', sizes=[(256, 256)])
-              print("Created icon.ico")
-      
-      - name: Build main application
-        run: |
-          python build.py --app-only
-      
-      - name: Build installer
-        run: |
-          python build.py --installer-only
-      
-      - name: Create portable ZIP
-        shell: python
-        run: |
-          import zipfile
-          import json
-          from pathlib import Path
-          
-          with open('version.json') as f:
-              version = json.load(f)['version']
-          
-          dist_dir = Path('dist')
-          app_dir = dist_dir / 'app' / 'LoLVoiceController'
-          zip_path = dist_dir / f'LoLVoiceController_{version}_portable.zip'
-          
-          with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-              for file_path in app_dir.rglob('*'):
-                  if file_path.is_file():
-                      arcname = file_path.relative_to(app_dir.parent)
-                      zipf.write(file_path, arcname)
-          
-          print(f"Created portable ZIP: {zip_path}")
-      
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: windows-build
-          path: |
-            dist/installer/*.exe
-            dist/*.zip
+          import build_config as cfg
 
-  build-linux:
-    name: Build Linux
-    needs: version
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y portaudio19-dev python3-pyaudio
-      
+          if os.environ["EVENT_NAME"] == "push":
+              version = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          else:
+              major, minor, patch, _ = cfg.version_tuple(cfg.get_version())
+              bump = os.environ.get("RELEASE_TYPE") or "patch"
+              if bump == "major":
+                  major, minor, patch = major + 1, 0, 0
+              elif bump == "minor":
+                  minor, patch = minor + 1, 0
+              else:
+                  patch += 1
+              version = f"{major}.{minor}.{patch}"
+
+          cfg.set_version(version)
+          print(f"resolved version {version}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"version={version}\n")
+              handle.write(f"tag=v{version}\n")
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
-      
-      - name: Download version info
-        uses: actions/download-artifact@v3
-        with:
-          name: version-info
-      
-      - name: Build Linux executable
-        run: |
-          VERSION=$(python -c "import json; print(json.load(open('version.json'))['version'])")
-          
-          pyinstaller \
-            --name LoLVoiceController \
-            --onefile \
-            --add-data "models:models" \
-            --add-data "config:config" \
-            --add-data "data:data" \
-            --hidden-import tkinter \
-            --hidden-import sounddevice \
-            --hidden-import numpy \
-            main.py
-          
-          # Create AppImage
-          mkdir -p dist/AppDir/usr/bin
-          cp dist/LoLVoiceController dist/AppDir/usr/bin/
-          
-          # Create desktop file
-          cat > dist/AppDir/LoLVoiceController.desktop <<EOF
-          [Desktop Entry]
-          Name=LoL Voice Controller
-          Exec=LoLVoiceController
-          Icon=lol-voice-controller
-          Type=Application
-          Categories=Game;
-          EOF
-          
-          # Create tarball
-          cd dist
-          tar czf LoLVoiceController_${VERSION}_linux.tar.gz LoLVoiceController
-          cd ..
-      
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: linux-build
-          path: dist/*.tar.gz
+          python -m pip install -r requirements-dev.txt
 
-  create-release:
-    name: Create Release
-    needs: [version, build-windows, build-linux]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-      
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.version.outputs.tag }}
-          release_name: LoL Voice Controller ${{ needs.version.outputs.version }}
-          body: ${{ needs.version.outputs.changelog }}
-          draft: false
-          prerelease: false
-      
-      - name: Upload Windows Installer
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: windows-build/installer/LoLVoiceController_Setup.exe
-          asset_name: LoLVoiceController_${{ needs.version.outputs.version }}_Setup.exe
-          asset_content_type: application/octet-stream
-      
-      - name: Upload Windows Portable
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: windows-build/LoLVoiceController_${{ needs.version.outputs.version }}_portable.zip
-          asset_name: LoLVoiceController_${{ needs.version.outputs.version }}_portable.zip
-          asset_content_type: application/zip
-      
-      - name: Upload Linux Build
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: linux-build/LoLVoiceController_${{ needs.version.outputs.version }}_linux.tar.gz
-          asset_name: LoLVoiceController_${{ needs.version.outputs.version }}_linux.tar.gz
-          asset_content_type: application/gzip
-      
-      - name: Update version in repository
+      - name: Build web panel
+        working-directory: webui
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          npm ci
+          npm run build
+
+      - name: Build application
+        run: python build.py --app-only
+
+      # windows-latest ships Inno Setup 6. Install it only if the image ever
+      # drops it, so the normal path costs nothing.
+      - name: Ensure Inno Setup
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            Write-Host "Inno Setup not present on the image, installing"
+            choco install innosetup --no-progress -y
+          }
+          Add-Content -Path $env:GITHUB_PATH -Value "C:\Program Files (x86)\Inno Setup 6"
+
+      - name: Build installer
+        run: python build.py --installer-only
+
+      - name: Build portable ZIP
+        run: python build.py --portable-only
+
+      - name: Hash artifacts
+        id: hash
+        shell: python
+        run: |
+          import hashlib
+          import os
+          import build_config as cfg
+
+          installer = cfg.INSTALLER_FILE
+          portable = cfg.portable_zip_path()
+          digest = hashlib.sha256(installer.read_bytes()).hexdigest()
+          print(f"{installer.name} sha256 {digest}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"sha256={digest}\n")
+              handle.write(f"installer={installer.name}\n")
+              handle.write(f"portable={portable.name}\n")
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-package
+          path: |
+            dist/installer/*.exe
+            dist/*.zip
+            version.json
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-package
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p release
+          find artifacts -type f \( -name '*.exe' -o -name '*.zip' \) -exec mv {} release/ \;
+          ls -l release
+
+      # A manual run bumps version.json on main and creates the tag, so the
+      # released version stays reachable from the default branch.
+      - name: Tag manual release
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          cp artifacts/version.json version.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add version.json
-          git commit -m "🔖 Bump version to ${{ needs.version.outputs.version }}" || true
-          git push
+          git commit -m "Release ${TAG}" || echo "nothing to commit"
+          git tag -a "${TAG}" -m "Release ${TAG}"
+          git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin "${TAG}"
+
+      - name: Build changelog
+        id: changelog
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          PREVIOUS=$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)
+          if [ -n "$PREVIOUS" ]; then
+            RANGE="${PREVIOUS}..${TAG}"
+          else
+            RANGE="${TAG}"
+          fi
+          git log --no-merges --pretty=format:'- %s (%h)' $RANGE > notes.md || true
+          if [ ! -s notes.md ]; then
+            echo "- No recorded changes" > notes.md
+          fi
+          {
+            echo 'notes<<CHANGELOG_EOF'
+            cat notes.md
+            echo 'CHANGELOG_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      # Manifest read by the in app updater (server/updater.py).
+      - name: Write latest.json
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.tag }}
+          SHA256: ${{ needs.build.outputs.sha256 }}
+          INSTALLER: ${{ needs.build.outputs.installer }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          tag = os.environ["TAG"]
+          installer = os.environ["INSTALLER"]
+          manifest = {
+              "version": os.environ["VERSION"],
+              "url": f"https://github.com/{repo}/releases/download/{tag}/{installer}",
+              "sha256": os.environ["SHA256"],
+              "notes": Path("notes.md").read_text(encoding="utf-8").strip(),
+          }
+          Path("release/latest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.tag }}
+          name: LoL Voice Controller ${{ needs.build.outputs.version }}
+          body: |
+            ## Changes
+
+            ${{ steps.changelog.outputs.notes }}
+
+            ## Install
+
+            Download `${{ needs.build.outputs.installer }}` and run it. The installer is per user,
+            it does not ask for administrator rights. Portable users can take
+            `${{ needs.build.outputs.portable }}` instead.
+
+            The binaries are not code signed yet, so SmartScreen may warn on first run.
+          draft: false
+          prerelease: ${{ inputs.prerelease == true }}
+          files: |
+            release/*.exe
+            release/*.zip
+            release/latest.json
+          fail_on_unmatched_files: true

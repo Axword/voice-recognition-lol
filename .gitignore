@@ -15,8 +15,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -28,11 +28,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 .cache/
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# PyInstaller. The spec file and the app manifest are committed on purpose,
+# only the generated version resource is ignored.
+build/pyinstaller/
+version_info.txt
 
 # Installer logs
 pip-log.txt
@@ -134,7 +133,6 @@ dmypy.json
 # PyCharm files
 .idea/
 
-requirements.txt
 
 # Static files
 **/admin
@@ -146,3 +144,42 @@ requirements.txt
 .cache
 
 .vosk-model-small-pl-0.22
+# Build and release output
+installer_output/
+dist/
+build/
+notes.md
+
+# Web panel
+webui/node_modules/
+webui/dist/
+
+# Speech models are downloaded at runtime, never committed
+models/
+
+# Generated test material
+tests/reports/
+
+# Pelny zestaw audio (okolo 1400 plikow) jest generowany i cache'owany w CI.
+# Wyjatkiem jest maly zestaw smoke: 10 bohaterow x 4 umiejetnosci x 2 jezyki,
+# ktory siedzi w repo, zeby testy e2e chodzily na kazdym PR.
+tests/fixtures/audio/**
+!tests/fixtures/audio/*/
+!tests/fixtures/audio/*/manifest.json
+!tests/fixtures/audio/*/*/
+tests/fixtures/audio/*/*/*.mp3
+!tests/fixtures/audio/*/Aatrox/*.mp3
+!tests/fixtures/audio/*/Ahri/*.mp3
+!tests/fixtures/audio/*/Garen/*.mp3
+!tests/fixtures/audio/*/Hwei/*.mp3
+!tests/fixtures/audio/*/Jinx/*.mp3
+!tests/fixtures/audio/*/Katarina/*.mp3
+!tests/fixtures/audio/*/Lux/*.mp3
+!tests/fixtures/audio/*/Thresh/*.mp3
+!tests/fixtures/audio/*/Yasuo/*.mp3
+!tests/fixtures/audio/*/Zed/*.mp3
+# Komendy glosowe per jezyk: maly zestaw TTS, po 6 fraz na jezyk
+!tests/fixtures/audio/commands/*/*.mp3
+
+# Claude Code worktrees and agents
+.claude/

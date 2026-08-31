@@ -1,0 +1,8 @@
+# Zaleznosci potrzebne do uruchomienia panelu i API w kontenerze.
+# Swiadomie bez sounddevice, pynput, pystray i pywhispercpp: kontener nie ma
+# mikrofonu, klawiatury systemowej ani zasobnika, a kod importuje je leniwie,
+# wiec serwer startuje bez nich i zglasza to w polu "error" w /api/v1/status.
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.5
+requests>=2.28

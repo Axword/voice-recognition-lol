@@ -1,0 +1,91 @@
+name: Publish to winget
+
+# Opens a pull request against microsoft/winget-pkgs with the new version.
+# Winget is also the SmartScreen mitigation while the binaries are unsigned.
+#
+# Manual setup, once:
+#   1. Fork https://github.com/microsoft/winget-pkgs to the account that will
+#      submit the pull requests.
+#   2. Create a classic personal access token on that account with the
+#      public_repo scope (fine grained tokens do not work with wingetcreate).
+#   3. Add it to this repository as the secret WINGET_TOKEN.
+#   4. The first version has to be submitted by hand with
+#      `wingetcreate new`, because wingetcreate update needs an existing
+#      manifest for Axword.LoLVoice.
+#
+# Until the secret exists the job logs what is missing and stops, so releases
+# are never blocked by it.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to submit, defaults to the latest release'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  PACKAGE_ID: Axword.LoLVoice
+
+jobs:
+  publish:
+    name: wingetcreate update
+    runs-on: windows-latest
+    steps:
+      - name: Check for the winget token
+        id: gate
+        shell: pwsh
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WINGET_TOKEN)) {
+            Write-Host "WINGET_TOKEN is not configured, skipping the winget submission."
+            Write-Host "See the comment at the top of .github/workflows/winget.yml for the setup steps."
+            "ready=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          } else {
+            "ready=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Resolve release
+        id: release
+        if: steps.gate.outputs.ready == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          $tag = "${{ github.event.release.tag_name }}"
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "v$env:INPUT_VERSION".TrimEnd('v') }
+          if ([string]::IsNullOrWhiteSpace($tag) -or $tag -eq "v") {
+            $tag = (gh release view --repo ${{ github.repository }} --json tagName --jq .tagName)
+          }
+          $version = $tag.TrimStart('v')
+          $url = "https://github.com/${{ github.repository }}/releases/download/$tag/LoLVoiceSetup.exe"
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "url=$url" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Submitting $version from $url"
+
+      - name: Submit to winget-pkgs
+        if: steps.gate.outputs.ready == 'true'
+        shell: pwsh
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          $exe = "$env:RUNNER_TEMP\wingetcreate.exe"
+          Invoke-WebRequest -Uri "https://aka.ms/wingetcreate/latest" -OutFile $exe
+          & $exe update $env:PACKAGE_ID `
+            --version "${{ steps.release.outputs.version }}" `
+            --urls "${{ steps.release.outputs.url }}" `
+            --submit `
+            --token $env:WINGET_TOKEN
+
+      # TODO: once an Azure Trusted Signing certificate is in place, sign the
+      # installer before this job runs and drop the SmartScreen note from the
+      # release body.
+      - name: Skipped
+        if: steps.gate.outputs.ready != 'true'
+        run: echo "winget submission skipped, no WINGET_TOKEN secret is configured."

@@ -1,12 +1,38 @@
-# Core dependencies
-numpy>=1.21.0
+# Runtime dependencies. Development and build tools live in requirements-dev.txt.
+
+# Local API and settings panel backend
+fastapi>=0.110
+uvicorn>=0.27
+websockets>=12.0
+pydantic>=2.6
+# System certificate store for TLS, so downloads work behind AV or proxy MITM
+truststore>=0.9
+
+# Tray icon
+pystray>=0.19
+Pillow>=10.0
+
+# Audio capture and voice activity detection
+numpy>=1.24
 sounddevice>=0.4.6
 webrtcvad>=2.0.10
-colorama>=0.4.6
-requests>=2.28.0
 
-# Whisper - install one of these (pywhispercpp is recommended)
-pywhispercpp>=1.0.0
-psutil>=5.9.0
-Pillow>=9.0.0
-pywin32>=304; sys_platform == 'win32'
+# Speech recognition backends. pywhispercpp is the default; faster-whisper
+# (CTranslate2) covers machines where Smart App Control blocks pywhispercpp
+# and provides the CUDA engines.
+pywhispercpp>=1.2.0
+faster-whisper>=1.1
+# webrtcvad imports pkg_resources: gone from fresh venvs since Python 3.12 and
+# removed from setuptools 81+, so we pin an older setuptools
+setuptools>=68,<81
+
+# Input simulation, game client polling, process helpers
+pynput>=1.7.6
+requests>=2.31
+psutil>=5.9
+
+# Console colours for the CLI entry point
+colorama>=0.4.6
+
+# Windows integration: single instance mutex, autostart, shell folders
+pywin32>=306; sys_platform == 'win32'
