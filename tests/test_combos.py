@@ -138,3 +138,62 @@ def test_chain_with_a_special_action_presses_translated_keys():
     service._execute(["q", "escape", "w"], "kju anuluj wu")
 
     assert pressed == ["q", "esc", "w"]
+
+
+# --- sklejone slowa ----------------------------------------------------
+
+# Whisper skleja szybko wypowiedziane litery w jedno slowo. To sa prawdziwe
+# transkrypcje z sesji uzytkownika, nie wymyslone przypadki.
+
+
+@pytest.mark.parametrize(
+    ("heard", "expected"),
+    [
+        ("qwa", ["q", "w", "e"]),
+        ("qwe", ["q", "w", "e"]),
+        ("kiuvue", ["q", "w", "e"]),
+        ("kuwu e", ["q", "w", "e"]),
+        ("kuwe", ["q", "w", "e"]),
+        ("q wa", ["q", "w", "e"]),
+        ("wa", ["w", "e"]),
+    ],
+)
+def test_merged_letters_are_split(heard, expected):
+    assert manager().match_sequence(heard) == expected
+
+
+@pytest.mark.parametrize(
+    ("heard", "expected"),
+    [
+        ("ku i wu i e", ["q", "w", "e"]),
+        ("ku i wu i e i r", ["q", "w", "e", "r"]),
+        ("kol i wol i we", ["q", "w", "e"]),
+        ("kiu i wloje", ["q", "w", "e"]),
+    ],
+)
+def test_letters_written_as_polish_words(heard, expected):
+    """Whisper zapisuje wypowiedziane litery jako slowa: kół, wół, wę."""
+    assert manager().match_sequence(heard) == expected
+
+
+@pytest.mark.parametrize("heard", ["muzyka", "kowly", "wlosy", "kupu a", "zupelnie inne zdanie"])
+def test_ordinary_words_are_not_split_into_letters(heard):
+    assert manager().match_sequence(heard) == []
+
+
+def test_long_words_are_never_split():
+    """Dluga zbitka to zdanie, nie sklejone litery."""
+    long_word = "a" * (MappingManager.COMBO_MAX_TOKEN_CHARS + 1)
+    assert manager().match_sequence(long_word) == []
+
+
+def test_split_prefers_the_most_letters():
+    """"kuwe" to ku, w, e, a nie ku plus we."""
+    assert manager().match_sequence("kuwe") == ["q", "w", "e"]
+
+
+def test_spell_mode_does_not_split_words():
+    """W trybie nazw umiejetnosci rozbijanie slow tylko szkodzi."""
+    m = manager(mode="spells")
+    m.load_champion_mappings({"zwodnicza kula": "q", "urok": "e"})
+    assert m.match_sequence("qwa") == []

@@ -143,8 +143,20 @@ def _resolve_wheel_url(package: str) -> tuple[str, int]:
     raise RuntimeError(f"No win_amd64 wheel for {package}")
 
 
-def _download_cuda_runtime(engine_id: str, progress: Optional[ProgressCallback] = None) -> None:
-    """Sciaga cuBLAS i cuDNN do katalogu danych aplikacji."""
+def _resolve_cuda_wheels() -> list[tuple[str, str, int]]:
+    return [(pkg, *_resolve_wheel_url(pkg)) for pkg in _CUDA_WHEEL_PACKAGES]
+
+
+def _download_cuda_runtime(
+    engine_id: str,
+    wheels: list[tuple[str, str, int]],
+    report: Optional[Callable[[int], None]] = None,
+) -> None:
+    """Sciaga cuBLAS i cuDNN do katalogu danych aplikacji.
+
+    ``report`` dostaje laczna liczbe pobranych bajtow, zeby wolajacy mogl
+    zlozyc z tego postep obejmujacy takze pobranie modelu.
+    """
     import io
     import zipfile
 
@@ -153,8 +165,6 @@ def _download_cuda_runtime(engine_id: str, progress: Optional[ProgressCallback] 
     target = cuda_runtime_dir()
     target.mkdir(parents=True, exist_ok=True)
 
-    wheels = [(pkg, *_resolve_wheel_url(pkg)) for pkg in _CUDA_WHEEL_PACKAGES]
-    total = sum(size for _pkg, _url, size in wheels)
     done = 0
     for pkg, url, _size in wheels:
         log.info("Downloading CUDA runtime %s", pkg)
@@ -166,8 +176,8 @@ def _download_cuda_runtime(engine_id: str, progress: Optional[ProgressCallback] 
                     raise InterruptedError(f"Download of {engine_id} cancelled")
                 buffer.write(chunk)
                 done += len(chunk)
-                if progress and total:
-                    progress(engine_id, done, total)
+                if report:
+                    report(done)
         with zipfile.ZipFile(buffer) as wheel:
             for info in wheel.infolist():
                 name = info.filename
@@ -302,19 +312,66 @@ def _download_faster_whisper(engine: Engine, progress: Optional[ProgressCallback
     cache = faster_whisper_cache_dir()
     cache.mkdir(parents=True, exist_ok=True)
     _cancelled.discard(engine.id)
+
+    # Postep obejmuje obie fazy naraz: biblioteki CUDA i model. Inaczej pasek
+    # dobiegal do konca, wracal do zera i zamieral na czas pobierania modelu.
+    wheels: list[tuple[str, str, int]] = []
     if engine.requires_cuda and not _cuda_dlls_present():
-        _download_cuda_runtime(engine.id, progress)
-    if progress:
-        progress(engine.id, 0, engine.size_bytes or 0)
+        wheels = _resolve_cuda_wheels()
+    cuda_total = sum(size for _pkg, _url, size in wheels)
+    model_total = engine.size_bytes or 0
+    total = cuda_total + model_total or 1
+
+    if wheels:
+        _download_cuda_runtime(
+            engine.id,
+            wheels,
+            lambda done: progress(engine.id, done, total) if progress else None,
+        )
 
     ensure_faster_whisper_importable()
     from faster_whisper.utils import download_model
 
-    result = Path(download_model(engine.model or "tiny", cache_dir=str(cache)))
+    # download_model nie raportuje postepu, wiec podgladamy rosnacy katalog.
+    watcher = _watch_directory_growth(engine.id, cache, cuda_total, total, progress)
+    try:
+        result = Path(download_model(engine.model or "tiny", cache_dir=str(cache)))
+    finally:
+        watcher.set()
     if progress:
-        total = engine.size_bytes or 1
         progress(engine.id, total, total)
     return result
+
+
+def _watch_directory_growth(
+    engine_id: str,
+    directory: Path,
+    offset: int,
+    total: int,
+    progress: Optional[ProgressCallback],
+) -> threading.Event:
+    """Raportuje postep na podstawie tego, ile przybylo na dysku."""
+    stop = threading.Event()
+    if progress is None:
+        stop.set()
+        return stop
+
+    start_size = _directory_size(directory)
+
+    def watch() -> None:
+        while not stop.wait(1.0):
+            grown = max(0, _directory_size(directory) - start_size)
+            progress(engine_id, min(offset + grown, total - 1), total)
+
+    threading.Thread(target=watch, name=f"progress-{engine_id}", daemon=True).start()
+    return stop
+
+
+def _directory_size(directory: Path) -> int:
+    try:
+        return sum(entry.stat().st_size for entry in directory.rglob("*") if entry.is_file())
+    except OSError:
+        return 0
 
 
 def download(engine_id: str, progress: Optional[ProgressCallback] = None) -> Path:

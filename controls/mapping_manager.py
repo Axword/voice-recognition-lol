@@ -25,6 +25,12 @@ class MappingManager:
     # Lancuch komend: najwiecej klawiszy naraz i najdluzsza fraza skladowa.
     COMBO_MAX_KEYS = 5
     COMBO_MAX_PHRASE_WORDS = 4
+    # Dluzsze slowo to juz zdanie, nie sklejone litery.
+    COMBO_MAX_TOKEN_CHARS = 14
+    # W lancuchu dopuszczamy tez krotkie warianty rozmyte ("kol", "wol", "we"),
+    # bo tak Whisper zapisuje wypowiedziane litery. Dluzsze wpisy z tego
+    # slownika to zwykle slowa ("wiesz", "dlaczego") i zostaja poza lancuchem.
+    COMBO_FUZZY_MAX_CHARS = 4
 
     def __init__(self, settings: Settings | None = None, debug: bool = False) -> None:
         self.debug = debug
@@ -248,9 +254,6 @@ class MappingManager:
             return []
 
         tokens = normalized.split()
-        if len(tokens) < 2:
-            return []
-
         connectors = cl.combo_connectors(self._settings.language)
         keys: list[str] = []
         index = 0
@@ -259,6 +262,16 @@ class MappingManager:
             if found is None:
                 if tokens[index] in connectors:
                     index += 1
+                    continue
+                # Szybko wypowiedziane litery Whisper skleja w jedno slowo:
+                # "q w e" wraca jako "qwa", "kiuvue". Probujemy rozbic.
+                pieces = self._segment_token(tokens[index], connectors)
+                if pieces:
+                    keys.extend(pieces)
+                    index += 1
+                    if len(keys) > self.COMBO_MAX_KEYS:
+                        log.debug("Combo dropped, more than %s keys", self.COMBO_MAX_KEYS)
+                        return []
                     continue
                 log.debug("Combo dropped, '%s' matches nothing", tokens[index])
                 return []
@@ -273,6 +286,76 @@ class MappingManager:
             return []
         log.debug("Combo: '%s' -> %s", normalized, " ".join(keys))
         return keys
+
+    def _segment_token(self, token: str, connectors: set[str]) -> list[str]:
+        """Rozbija sklejone slowo na kolejne litery: "kiuvue" -> [q, w, e].
+
+        Whisper zwraca jedno slowo, gdy litery padaja szybko po sobie. Dzielimy
+        je wylacznie na czlony ze slownika liter i na spojniki, i tylko wtedy,
+        gdy podzial wychodzi bez reszty. Slowo, ktorego nie da sie rozlozyc do
+        konca, zostaje nieznane i kasuje caly lancuch.
+        """
+        # Tryb nazw umiejetnosci operuje slowami, nie literami, wiec rozbijanie
+        # zbitek moglo by tam tylko mieszac tryby.
+        if self._mode == "spells" or len(token) > self.COMBO_MAX_TOKEN_CHARS:
+            return []
+
+        letters = self._segment_pieces()
+        longest = max((len(piece) for piece in letters), default=1)
+        longest = max(longest, max((len(word) for word in connectors), default=1))
+
+        cache: dict[int, list[str] | None] = {}
+
+        def walk(start: int) -> list[str] | None:
+            """Podzial dajacy najwiecej liter, bo kazda litera to osobny czlon.
+
+            Wariant z najdluzszymi czlonami gubilby litery w srodku: "kuwe" to
+            "ku" plus "w" plus "e", a nie "ku" plus "we".
+            """
+            if start == len(token):
+                return []
+            if start in cache:
+                return cache[start]
+
+            best: list[str] | None = None
+            for width in range(1, min(longest, len(token) - start) + 1):
+                piece = token[start : start + width]
+                if piece in letters:
+                    rest = walk(start + width)
+                    if rest is not None:
+                        candidate = [letters[piece]] + rest
+                        if best is None or len(candidate) > len(best):
+                            best = candidate
+                elif piece in connectors:
+                    rest = walk(start + width)
+                    if rest is not None and (best is None or len(rest) > len(best)):
+                        best = rest
+            cache[start] = best
+            return best
+
+        keys = walk(0)
+        if not keys or len(keys) < 2:
+            return []
+        log.debug("Merged token '%s' split into %s", token, " ".join(keys))
+        return keys
+
+    def _segment_pieces(self) -> dict[str, str]:
+        """Czlony dozwolone przy rozbijaniu sklejonego slowa: same litery."""
+        merged = dict(cl.LETTERS_UNIVERSAL)
+        for table in self._active_language_tables(cl.LETTERS_BY_LANG):
+            merged.update(table)
+        pieces = {self.normalize(phrase): key for phrase, key in merged.items() if " " not in phrase}
+        if self._mode != "spells":
+            pieces.update(self._short_letter_variants())
+        return pieces
+
+    def _short_letter_variants(self) -> dict[str, str]:
+        """Krotkie warianty rozmyte liter, dopuszczone w lancuchu."""
+        return {
+            phrase: key
+            for phrase, key in self.ability_mappings_fuzzy.items()
+            if len(phrase) <= self.COMBO_FUZZY_MAX_CHARS and " " not in phrase
+        }
 
     def _combo_pools(self) -> list[dict]:
         """Slowniki do skladania lancucha, od najpewniejszego.
@@ -300,6 +383,12 @@ class MappingManager:
             for pool in pools:
                 if phrase in pool:
                     return pool[phrase], width
+
+        token = tokens[index]
+        if self._mode != "spells":
+            short = self._short_letter_variants()
+            if token in short:
+                return short[token], 1
         return None
 
     def _find_fuzzy_match(self, command: str, mappings: dict, threshold: float) -> tuple | None:
