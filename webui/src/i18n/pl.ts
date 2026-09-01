@@ -152,6 +152,8 @@ export const pl = {
   engines_note: 'Wszystkie silniki obsługują wiele języków. Testowany był polski. Pozostałe, w tym angielski, są nietestowane.',
   merge_commands: 'Komendy ze wszystkich języków',
   merge_commands_hint: 'Domyślnie działają tylko komendy wybranego języka. Włącz, aby np. błysk i flash działały jednocześnie w każdym języku.',
+  combo_mode: 'Łańcuchy komend',
+  combo_mode_hint: 'Jedna wypowiedź, kilka klawiszy po kolei: powiedz kju wu e, a aplikacja wciśnie Q, W, E. Każdy człon musi trafić dokładnie, inaczej nic się nie wciska.',
   error_generic: 'Coś poszło nie tak.',
 };
 

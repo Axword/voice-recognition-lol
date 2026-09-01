@@ -142,8 +142,12 @@ export function Dashboard() {
               <div class="feed__row" key={`${h.at}-${i}`}>
                 <span class="feed__time">{clock(h.at)}</span>
                 <span class="feed__phrase">{h.phrase}</span>
-                {h.key ? (
-                  <span class="key">{h.key}</span>
+                {h.keys.length > 0 ? (
+                  <span class="feed__keys">
+                    {h.keys.map((key, position) => (
+                      <span class="key" key={`${key}-${position}`}>{key}</span>
+                    ))}
+                  </span>
                 ) : (
                   <span class="badge">{s.feed_no_match}</span>
                 )}

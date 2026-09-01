@@ -134,14 +134,27 @@ class VoiceService:
 
     # --- wspolna sciezka komend ---------------------------------------
 
-    def handle_transcript(self, text: str) -> str | None:
-        """Dopasowuje tekst do klawisza i wykonuje akcje. Zwraca klawisz albo None."""
+    def handle_transcript(self, text: str) -> str | list[str] | None:
+        """Dopasowuje tekst do akcji i wykonuje ja.
+
+        Zwraca klawisz, liste klawiszy przy lancuchu komend, albo None.
+        """
         cleaned = clean_text(text)
         if not cleaned:
             return None
 
         self._last_heard = cleaned
-        matched = self.mapping_manager.match_command(cleaned)
+
+        # Lancuch ma pierwszenstwo, bo jest wezszy: kazdy czlon musi trafic
+        # doslownie. Gdy sie nie sklada, zostaje zwykla pojedyncza komenda.
+        matched: Any = None
+        if self.settings.combo_enabled:
+            sequence = self.mapping_manager.match_sequence(cleaned)
+            if sequence:
+                matched = sequence
+        if matched is None:
+            matched = self.mapping_manager.match_command(cleaned)
+
         self._emit({"type": "heard", "text": cleaned, "matched": matched, "time": time.strftime("%H:%M:%S")})
 
         if matched is None:
@@ -152,23 +165,30 @@ class VoiceService:
         self._execute(matched, cleaned)
         return matched
 
-    def _execute(self, action, text: str) -> None:
+    def _resolve_key(self, action: str) -> str:
+        """Akcja na faktyczny klawisz.
+
+        "escape" i "random" nie sa nazwami klawiszy, wiec trzeba je zamienic.
+        Dotyczy to tak samo pojedynczej komendy, jak i czlonu lancucha.
+        """
         if action == "escape":
-            self.key_controller.press_key("esc")
-            log.info("Executed '%s' -> ESC", text)
-        elif action == "random":
-            key = random.choice(RANDOM_ABILITIES)
-            self.key_controller.press_key(key)
-            log.info("Executed '%s' -> %s (random)", text, key.upper())
-        elif isinstance(action, (list, tuple)):
-            log.info("Executing combo: %s", " -> ".join(str(a) for a in action))
-            for i, step in enumerate(action):
-                if i:
+            return "esc"
+        if action == "random":
+            return random.choice(RANDOM_ABILITIES)
+        return action
+
+    def _execute(self, action, text: str) -> None:
+        if isinstance(action, (list, tuple)):
+            keys = [self._resolve_key(step) for step in action]
+            log.info("Executed '%s' -> %s (chain)", text, " ".join(k.upper() for k in keys))
+            for position, key in enumerate(keys):
+                if position:
                     time.sleep(COMBO_DELAY)
-                self.key_controller.press_key(step)
+                self.key_controller.press_key(key)
         elif isinstance(action, str):
-            self.key_controller.press_key(action)
-            log.info("Executed '%s' -> %s", text, action.upper())
+            key = self._resolve_key(action)
+            self.key_controller.press_key(key)
+            log.info("Executed '%s' -> %s", text, key.upper())
 
     # --- cykl zycia ---------------------------------------------------
 

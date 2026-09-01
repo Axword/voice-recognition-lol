@@ -165,6 +165,13 @@ export function SettingsView() {
             onChange={(v) => patchSettings({ language: v })}
           />
         </Row>
+        <Row label={s.combo_mode} hint={s.combo_mode_hint}>
+          <Switch
+            label={s.combo_mode}
+            checked={cfg.combo_enabled}
+            onChange={(v) => patchSettings({ combo_enabled: v })}
+          />
+        </Row>
         <Row label={s.merge_commands} hint={s.merge_commands_hint}>
           <Switch
             label={s.merge_commands}

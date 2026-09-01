@@ -22,6 +22,10 @@ SOURCE_EXTRA = "extra"
 
 
 class MappingManager:
+    # Lancuch komend: najwiecej klawiszy naraz i najdluzsza fraza skladowa.
+    COMBO_MAX_KEYS = 5
+    COMBO_MAX_PHRASE_WORDS = 4
+
     def __init__(self, settings: Settings | None = None, debug: bool = False) -> None:
         self.debug = debug
         self._settings = settings or config.load()
@@ -225,6 +229,77 @@ class MappingManager:
             return key
 
         log.debug("No match found for '%s'", normalized_command)
+        return None
+
+    def match_sequence(self, text: str) -> list[str]:
+        """Rozbija wypowiedz na lancuch komend, w kolejnosci wypowiedzenia.
+
+        "kju wu e" daje ["q", "w", "e"]. Najpierw probuje potraktowac calosc
+        jako jedna komende, zeby nie rozbic nazw wielowyrazowych ("bo jest",
+        "Zwodnicza Kula"), i dopiero potem dzieli tekst na slowa.
+
+        Zwraca pusta liste, gdy w wypowiedzi jest cokolwiek niezrozumialego
+        albo gdy wyszla tylko jedna komenda. Pojedyncze komendy zalatwia
+        match_command, a przy sterowaniu gra lepiej nie wcisnac nic niz
+        wcisnac przypadkowa sekwencje.
+        """
+        normalized = self.normalize(text)
+        if not normalized:
+            return []
+
+        tokens = normalized.split()
+        if len(tokens) < 2:
+            return []
+
+        connectors = cl.combo_connectors(self._settings.language)
+        keys: list[str] = []
+        index = 0
+        while index < len(tokens):
+            found = self._match_window(tokens, index)
+            if found is None:
+                if tokens[index] in connectors:
+                    index += 1
+                    continue
+                log.debug("Combo dropped, '%s' matches nothing", tokens[index])
+                return []
+            key, width = found
+            keys.append(key)
+            index += width
+            if len(keys) > self.COMBO_MAX_KEYS:
+                log.debug("Combo dropped, more than %s keys", self.COMBO_MAX_KEYS)
+                return []
+
+        if len(keys) < 2:
+            return []
+        log.debug("Combo: '%s' -> %s", normalized, " ".join(keys))
+        return keys
+
+    def _combo_pools(self) -> list[dict]:
+        """Slowniki do skladania lancucha, od najpewniejszego.
+
+        Swiadomie bez slownika rozmytych wariantow liter. Siedza w nim zwykle
+        polskie slowa ("ale", "wiesz", "bo"), ktore pojedynczo ratuja przeslyszana
+        litere, ale w lancuchu zamienialyby normalna wypowiedz w serie klawiszy.
+        """
+        mode = self._mode if self._mode in ("letters", "spells") else "letters"
+        if mode == "letters":
+            return [self.ability_mappings_exact, self.extra_commands]
+        return [self.champion_spell_mappings, self.extra_commands]
+
+    def _match_window(self, tokens: list[str], index: int) -> tuple[str, int] | None:
+        """Najdluzsza fraza zaczynajaca sie w tokens[index]: (klawisz, ile slow).
+
+        Tylko trafienia doslowne. Rozmyte dopasowanie czlonu lancucha wcisnelo by
+        zly klawisz w srodku akcji, a najdluzsze okno pierwsze sprawia, ze
+        wielowyrazowe komendy ("bo jest", "Zwodnicza Kula") zostaja caloscia.
+        """
+        pools = self._combo_pools()
+        widest = min(self.COMBO_MAX_PHRASE_WORDS, len(tokens) - index)
+        for width in range(widest, 0, -1):
+            phrase = " ".join(tokens[index : index + width])
+            for pool in pools:
+                if phrase in pool:
+                    return pool[phrase], width
         return None
 
     def _find_fuzzy_match(self, command: str, mappings: dict, threshold: float) -> tuple | None:

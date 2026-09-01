@@ -146,5 +146,7 @@ export const en: Strings = {
   engines_note: 'Every engine handles many languages. Polish has been tested. The rest, English included, is untested.',
   merge_commands: 'Commands from every language',
   merge_commands_hint: 'By default only the selected language commands are active. Turn on to have e.g. blysk and flash work at the same time in any language.',
+  combo_mode: 'Command chains',
+  combo_mode_hint: 'One phrase, several keys in order: say cue double u ee and the application presses Q, W, E. Every part has to match exactly, otherwise nothing is pressed.',
   error_generic: 'Something went wrong.',
 };

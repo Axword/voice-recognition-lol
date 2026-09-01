@@ -80,11 +80,14 @@ function onFrame(frame: Record<string, unknown>): void {
     }
     case 'heard': {
       const at = typeof frame.time === 'number' ? frame.time * 1000 : Date.now();
-      const item: HeardItem = {
-        at,
-        phrase: String(frame.text ?? ''),
-        key: typeof frame.matched === 'string' && frame.matched ? frame.matched : null,
-      };
+      // matched to pojedynczy klawisz albo lista klawiszy przy lancuchu komend.
+      const matched = frame.matched;
+      const keys = Array.isArray(matched)
+        ? matched.filter((entry): entry is string => typeof entry === 'string' && entry.length > 0)
+        : typeof matched === 'string' && matched
+          ? [matched]
+          : [];
+      const item: HeardItem = { at, phrase: String(frame.text ?? ''), keys };
       heard.value = [item, ...heard.value].slice(0, HEARD_LIMIT);
       break;
     }

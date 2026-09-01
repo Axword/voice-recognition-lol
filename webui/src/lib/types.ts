@@ -10,6 +10,7 @@ export interface Settings {
   spell_sensitivity: Sensitivity;
   language: string;
   merge_command_languages: boolean;
+  combo_enabled: boolean;
   ui_language: UiLanguage;
   flash_key: string;
   summoner2_key: string;
@@ -91,7 +92,8 @@ export interface UpdateInfo {
 export interface HeardItem {
   at: number;
   phrase: string;
-  key: string | null;
+  /** Klawisze w kolejnosci wcisniecia. Pusta lista znaczy brak dopasowania. */
+  keys: string[];
 }
 
 export interface DownloadState {

@@ -20,6 +20,7 @@ class Settings(BaseModel):
     spell_sensitivity: Sensitivity = "medium"
     language: str = "pl_PL"
     merge_command_languages: bool = False
+    combo_enabled: bool = False
     ui_language: Literal["pl_PL", "en_US"] = "pl_PL"
     flash_key: str = "d"
     summoner2_key: str = "f"

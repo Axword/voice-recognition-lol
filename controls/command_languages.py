@@ -312,6 +312,40 @@ EXTRAS_BY_LANG: dict[str, dict[str, str]] = {
     },
 }
 
+# --- slowa laczace w lancuchach komend --------------------------------
+
+# Wypowiadajac lancuch ludzie wtracaja spojniki: "kju i wu", "q then w".
+# Takie slowa sa pomijane, ale dopiero gdy nie sa komenda: polskie "a" znaczy
+# E, wiec najpierw zawsze probujemy dopasowania.
+CONNECTORS_BY_LANG: dict[str, set[str]] = {
+    "pl": {"i", "oraz", "potem", "nastepnie", "plus", "no", "to", "tez"},
+    "en": {"and", "then", "plus", "also"},
+    "de": {"und", "dann", "danach"},
+    "fr": {"et", "puis", "ensuite"},
+    "es": {"y", "luego", "despues"},
+    "it": {"poi", "dopo"},
+    "pt": {"depois", "entao"},
+    "ru": {"потом", "затем", "далее"},
+    "tr": {"sonra", "ardindan"},
+    "cs": {"pak", "potom"},
+    "el": {"και", "μετα"},
+    "hu": {"aztan", "utana"},
+    "ro": {"apoi", "dupa"},
+    "id": {"lalu", "kemudian"},
+    "vi": {"roi", "sau do"},
+    "th": {"แลว"},
+    "ko": {"그리고", "다음"},
+    "ja": {"それから", "つぎ"},
+    "zh": {"然后", "接着"},
+    "ar": {"ثم"},
+}
+
+
+def combo_connectors(locale: str) -> set[str]:
+    """Slowa do pominiecia w lancuchu komend dla danego jezyka."""
+    return CONNECTORS_BY_LANG.get(language_prefix(locale), CONNECTORS_BY_LANG["en"])
+
+
 SUPPORTED_PREFIXES = sorted(set(EXTRAS_BY_LANG) | set(LETTERS_BY_LANG))
 
 

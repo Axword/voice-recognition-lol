@@ -23,7 +23,7 @@ Nic nie zapisuje do katalogu instalacji.
 
 ## app.config
 
-`Settings` (pydantic) z polami: `recognition_mode`, `spell_sensitivity`, `language`, `merge_command_languages`, `ui_language`, `flash_key`, `summoner2_key`, `engine_id`, `audio_device`, `start_with_windows`, `start_listening_on_launch`, `theme`, `skipped_version`, `check_updates`.
+`Settings` (pydantic) z polami: `recognition_mode`, `spell_sensitivity`, `language`, `merge_command_languages`, `combo_enabled`, `ui_language`, `flash_key`, `summoner2_key`, `engine_id`, `audio_device`, `start_with_windows`, `start_listening_on_launch`, `theme`, `skipped_version`, `check_updates`.
 Komendy dodatkowe i warianty liter zyja w `controls/command_languages.py`, po slowniku na jezyk; aktywny jest slownik biezacego jezyka, a `merge_command_languages` laczy wszystkie.
 Funkcje: `load(force=False)`, `save(settings)`, `update(patch: dict)`, `reset_cache()`.
 Migracja ze starych `config/config.json` i `config.json` dzieje się przy pierwszym `load()`.
@@ -65,7 +65,7 @@ Poza tabelą:
 | `reset_service()` | funkcja modułu, kasuje singleton, dla testów przestawiających `LOLVOICE_HOME` |
 
 `status()` zawiera dodatkowo klucz `error`: ostatni błąd startu silnika albo `null`.
-Zdarzenie `heard` ma kształt `{type, text, matched, time}`, gdzie `matched` to klawisz albo `null`.
+Zdarzenie `heard` ma kształt `{type, text, matched, time}`, gdzie `matched` to klawisz, lista klawiszy przy łańcuchu komend (`combo_enabled`), albo `null`.
 
 ## REST API (prefiks `/api/v1`, nasłuch tylko na 127.0.0.1)
 

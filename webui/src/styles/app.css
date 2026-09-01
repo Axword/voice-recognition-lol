@@ -633,6 +633,13 @@ button.stat:hover .stat__v {
   color: var(--text-muted);
 }
 
+.feed__keys {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .feed__phrase {
   overflow: hidden;
   text-overflow: ellipsis;

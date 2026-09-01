@@ -27,6 +27,7 @@ SETTINGS_KEYS = {
     "spell_sensitivity",
     "language",
     "merge_command_languages",
+    "combo_enabled",
     "ui_language",
     "flash_key",
     "summoner2_key",
